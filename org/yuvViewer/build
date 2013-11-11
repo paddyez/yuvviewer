@@ -1,0 +1,11 @@
+#!/bin/sh
+ant
+cd gui
+#javap -s -p YUVViewer
+cd ~/java/yuvviewer/yuvViewer_nativ/
+/usr/lib/jvm/java-7-openjdk-amd64/bin/javah -d org/yuvViewer/gui/ -jni org.yuvViewer.gui.YUVViewer
+cd ~/java/yuvviewer/yuvViewer_nativ/org/yuvViewer/gui/
+gcc -shared -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include YUVViewerImplementation.c -o libcalc.so
+#gcc -shared -I/usr/local/java/include/linux -I/usr/local/java/include/ YUVViewerImplementation.c -o libcalc.so
+mv libcalc.so ~/java/jni/lib
+/usr/lib/jvm/java-7-openjdk-amd64/bin/java -cp ~/java/yuvviewer/yuvViewer_nativ/:. org.yuvViewer.Main

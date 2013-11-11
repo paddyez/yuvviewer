@@ -1,0 +1,29 @@
+#!/bin/sh
+# Modified by Chris Schaab <cschaab@vt.edu> for Mac OS X Aug 16 2004
+
+if [ "$1" = "" ] ; then
+echo "Usage: $0 [G4 | G5 | Other]"
+exit
+fi
+
+ant
+cd gui
+javah -jni YUVViewer
+
+# -shared isn't supported on mac os X, the next 2 lines could probably be one but this doesn't hurt.
+# The -fast optimizes for a G5 and won't run on previous machines. for G4 add in -mcpu=7450 for prior CPUs take out -fast and -fPIC 
+if [ "$1" = "G4" ] ; then
+GCC_OPT="-fast -fPIC -mcpu=7450"
+elif [ "$1" = "G5" ] ; then
+GCC_OPT="-fast -fPIC"
+else
+GCC_OPT=""
+fi
+
+gcc -c $GCC_OPT -I/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Headers -I/usr/local/java/include/linux -I/usr/local/java/include/ YUVViewerImplementation.c -o libcalc.o
+gcc -dynamiclib -o libcalc.jnilib libcalc.o -framework JavaVM
+
+#This shouldn't need this sudo move, but I couldn't get it to work via enviornment variables to be in my home directory.
+sudo mv libcalc.jnilib /Library/Java/Extensions
+cd ..
+java -cp ../../  org.yuvViewer.Main

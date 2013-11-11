@@ -1,0 +1,1 @@
+java -cp ../.. -Djava.library.path=gui org.yuvViewer.Main
