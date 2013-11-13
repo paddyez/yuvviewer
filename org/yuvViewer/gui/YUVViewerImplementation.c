@@ -401,53 +401,42 @@ Java_org_yuvViewer_gui_YUVViewer_resizeRGBImage(JNIEnv *env,
 {
   jint *scaledImage= (*env)->GetIntArrayElements(env, scaledRGBImage, 0);
   jint *image= (*env)->GetIntArrayElements(env, rgbImage, 0);
-  int i,j,k,l;
-  for(i=0;i<height;i++)
-    {
-      for(j=0;j<width;j++)
-	{
-	  int t=image[j+i*width];
+  for(int i = 0; i < height; i++)
+  {
+	  for(int j = 0; j < width; j++)
+	  {
+		  int t = image[j+i*width];
+		  switch(scale) 
+		  {
+		  case  1:  
+			  scaledImage[(scale*j+0)+(scale*i+0)*scale*width] = t;
+			  break;
+		  case  2:  
+			  scaledImage[(scale*j+0)+(scale*i+0)*scale*width] = t;
+			  scaledImage[(scale*j+0)+(scale*i+1)*scale*width] = t;
+			  scaledImage[(scale*j+1)+(scale*i+0)*scale*width] = t;
+			  scaledImage[(scale*j+1)+(scale*i+1)*scale*width] = t;
+			  break;
+		  case  4:  
+			  for(int k = 0; k < 4; k++)
+			  {
+				  for(int l = 0; l < 4; l++)
+				  {
+					  scaledImage[(scale*j+k)+(scale*i+l)*scale*width] = t;
+				  }
+			  }
 
-	  switch(scale) 
-	    {
-	      
-	    case  1:  
-	      scaledImage[(scale*j+0)+(scale*i+0)*scale*width]=t;
-	      break;
-	    case  2:  
-	      scaledImage[(scale*j+0)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+0)+(scale*i+1)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+1)*scale*width]=t;
-	      break;
-	    case  4:  
-	      scaledImage[(scale*j+0)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+0)+(scale*i+1)*scale*width]=t;
-	      scaledImage[(scale*j+0)+(scale*i+2)*scale*width]=t;
-	      scaledImage[(scale*j+0)+(scale*i+3)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+1)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+2)*scale*width]=t;
-	      scaledImage[(scale*j+1)+(scale*i+3)*scale*width]=t;
-	      scaledImage[(scale*j+2)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+2)+(scale*i+1)*scale*width]=t;
-	      scaledImage[(scale*j+2)+(scale*i+2)*scale*width]=t;
-	      scaledImage[(scale*j+2)+(scale*i+3)*scale*width]=t;
-	      scaledImage[(scale*j+3)+(scale*i+0)*scale*width]=t;
-	      scaledImage[(scale*j+3)+(scale*i+1)*scale*width]=t;
-	      scaledImage[(scale*j+3)+(scale*i+2)*scale*width]=t;
-	      scaledImage[(scale*j+3)+(scale*i+3)*scale*width]=t;
-	      break;
-	    default:  
-	      for(k=0;k<scale;k++)
-		{
-		  for(l=0;l<scale;l++)
-		    {
-		      scaledImage[(scale*j+k)+(scale*i+l)*scale*width]=t;
-		    }
-		}
-	    }
-	}
+			  break;
+		  default: 
+			  for(int k = 0; k < scale; k++)
+			  {
+				  for(int l = 0; l < scale; l++)
+				  {
+					  scaledImage[(scale*j+k)+(scale*i+l)*scale*width]=t;
+				  }
+			  }
+		  }
+	  }
     }
   (*env)->ReleaseIntArrayElements(env, scaledRGBImage, scaledImage, 0);
   (*env)->ReleaseIntArrayElements(env, rgbImage, image, 0);
