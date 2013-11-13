@@ -428,9 +428,9 @@ Java_org_yuvViewer_gui_YUVViewer_resizeRGBImage(JNIEnv *env,
 
 			  break;
 		  default: 
-			  for(k=0;k<scale;k++)
+			  for(int k = 0; k < scale; k++)
 			  {
-				  for(l=0;l<scale;l++)
+				  for(int l = 0; l < scale; l++)
 				  {
 					  scaledImage[(scale*j+k)+(scale*i+l)*scale*width]=t;
 				  }
