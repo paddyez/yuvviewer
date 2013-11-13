@@ -1,6 +1,6 @@
 <project default="compile" basedir=".">
   <target name="compile" depends="clean">
-    <javac srcdir="." source="1.7" optimize="true">
+    <javac srcdir="." source="1.7" includeantruntime="false" optimize="true">
     </javac>
   </target>
   <target name="clean">

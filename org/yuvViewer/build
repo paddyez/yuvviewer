@@ -1,11 +1,32 @@
 #!/bin/sh
-ant
+if type ant > /dev/null
+then
+	ant
+else
+	echo 'Installing Apache Ant is not installed'
+	echo 'Make shure ant exists is in your path and is executable'
+	echo 'Installing Apache Ant http://ant.apache.org/manual/install.html'
+fi
 cd gui
 #javap -s -p YUVViewer
 cd ~/java/yuvviewer/yuvViewer_nativ/
-/usr/lib/jvm/java-7-openjdk-amd64/bin/javah -d org/yuvViewer/gui/ -jni org.yuvViewer.gui.YUVViewer
-cd ~/java/yuvviewer/yuvViewer_nativ/org/yuvViewer/gui/
-gcc -shared -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include YUVViewerImplementation.c -o libcalc.so
-#gcc -shared -I/usr/local/java/include/linux -I/usr/local/java/include/ YUVViewerImplementation.c -o libcalc.so
-mv libcalc.so ~/java/jni/lib
-/usr/lib/jvm/java-7-openjdk-amd64/bin/java -cp ~/java/yuvviewer/yuvViewer_nativ/:. org.yuvViewer.Main
+if type javah > /dev/null
+then
+	javah -d org/yuvViewer/gui/ -jni org.yuvViewer.gui.YUVViewer
+else
+	echo 'javah is not installed'
+fi
+	cd ~/java/yuvviewer/yuvViewer_nativ/org/yuvViewer/gui/
+if type gcc > /dev/null
+then
+	gcc -shared -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include YUVViewerImplementation.c -o libcalc.so
+	mv libcalc.so ~/java/jni/lib
+else
+	echo 'gcc is not installed'
+fi
+if type java > /dev/null
+then
+	java -cp ~/java/yuvviewer/yuvViewer_nativ/:. org.yuvViewer.Main
+else
+	echo 'java is not installed'
+fi
