@@ -282,7 +282,7 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void setFrameNumber(int frameNumber) {
-        Integer Int = new Integer(frameNumber);
+        Integer Int = Integer.valueOf(frameNumber);
         frameText.setText(Int.toString());
     }
 
