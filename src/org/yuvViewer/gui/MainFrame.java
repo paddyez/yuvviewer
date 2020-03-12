@@ -1,20 +1,3 @@
-/***************************************************************************
- MainFrame.java  -  description
- -------------------
- begin                : Thu Aug 28 18:24:32 CEST 2003
- copyright            : (C) 2003 by Patrick Zoerner
- email                : paddyz@t-online.de
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 package org.yuvViewer.gui;
 
 import java.io.*;
@@ -29,30 +12,27 @@ import org.yuvViewer.utils.*;
  * @version 1.0
  */
 public class MainFrame extends JFrame implements ActionListener {
-    private UIManager.LookAndFeelInfo[] lookAndFeelInfo = UIManager.getInstalledLookAndFeels();
+    private final UIManager.LookAndFeelInfo[] lookAndFeelInfo = UIManager.getInstalledLookAndFeels();
     private UIManager.LookAndFeelInfo info;
-    private final String Title = "YUV Viewer";
     private final SettingsDialog settingsDialog = new SettingsDialog(this);
-    private JPanel contentPane;
-    private BorderLayout borderLayout1 = new BorderLayout();
-    private JMenuBar jMenuBar1 = new JMenuBar();
-    private JMenu jMenuFile = new JMenu();
-    private JMenu jMenuOptions = new JMenu();
-    private JMenuItem jMenuFileOpen = new JMenuItem();
-    private JMenuItem jMenuFileExit = new JMenuItem();
-    private JMenu jMenuTools = new JMenu();
-    private JRadioButtonMenuItem jMenuScale1 = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem jMenuScale2 = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem jMenuScale4 = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem jMenuScale8 = new JRadioButtonMenuItem();
+    private final BorderLayout borderLayout1 = new BorderLayout();
+    private final JMenuBar jMenuBar1 = new JMenuBar();
+    private final JMenu jMenuFile = new JMenu();
+    private final JMenu jMenuOptions = new JMenu();
+    private final JMenuItem jMenuFileOpen = new JMenuItem();
+    private final JMenuItem jMenuFileExit = new JMenuItem();
+    private final JMenu jMenuTools = new JMenu();
+    private final JRadioButtonMenuItem jMenuScale1 = new JRadioButtonMenuItem();
+    private final JRadioButtonMenuItem jMenuScale2 = new JRadioButtonMenuItem();
+    private final JRadioButtonMenuItem jMenuScale4 = new JRadioButtonMenuItem();
+    private final JRadioButtonMenuItem jMenuScale8 = new JRadioButtonMenuItem();
     ButtonGroup buttonGroup = new ButtonGroup();
-    private JCheckBoxMenuItem jCheckBoxMenuItemShowY = new JCheckBoxMenuItem("Show Y", true);
-    private JCheckBoxMenuItem jCheckBoxMenuItemShowU = new JCheckBoxMenuItem("Show U", true);
-    private JCheckBoxMenuItem jCheckBoxMenuItemShowV = new JCheckBoxMenuItem("Show V", true);
-    private ButtonGroup lookAndFellGroup = new ButtonGroup();
-    private JRadioButtonMenuItem jRadioButtonMenueItem;
-    private JMenu jMenuHelp = new JMenu();
-    private JMenuItem jMenuHelpAbout = new JMenuItem();
+    private final JCheckBoxMenuItem jCheckBoxMenuItemShowY = new JCheckBoxMenuItem("Show Y", true);
+    private final JCheckBoxMenuItem jCheckBoxMenuItemShowU = new JCheckBoxMenuItem("Show U", true);
+    private final JCheckBoxMenuItem jCheckBoxMenuItemShowV = new JCheckBoxMenuItem("Show V", true);
+    private final ButtonGroup lookAndFellGroup = new ButtonGroup();
+    private final JMenu jMenuHelp = new JMenu();
+    private final JMenuItem jMenuHelpAbout = new JMenuItem();
     private final FrameAboutBox dlg = new FrameAboutBox(this);
 
     private final JDesktopPane jDesktop = new JDesktopPane();
@@ -89,10 +69,11 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     void jbInit() {
-        contentPane = (JPanel) this.getContentPane();
+        JPanel contentPane = (JPanel) this.getContentPane();
         contentPane.setLayout(borderLayout1);
 
-        this.setTitle(Title);
+        String title = "YUV Viewer";
+        this.setTitle(title);
         //Menu File
         jMenuFile.setText("File");
         jMenuFile.setMnemonic(KeyEvent.VK_F);
@@ -158,25 +139,23 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     void setupRadioButtons() {
-        for (int i = 0; i < lookAndFeelInfo.length; i++) {
-            jRadioButtonMenueItem = new JRadioButtonMenuItem(lookAndFeelInfo[i].getName());
+        for (UIManager.LookAndFeelInfo andFeelInfo : lookAndFeelInfo) {
+            JRadioButtonMenuItem jRadioButtonMenueItem = new JRadioButtonMenuItem(andFeelInfo.getName());
             jMenuOptions.add(jRadioButtonMenueItem);
 
-            jRadioButtonMenueItem.setSelected(UIManager.getLookAndFeel().getName().equals(lookAndFeelInfo[i].getName()));
-            jRadioButtonMenueItem.putClientProperty("UIKey", lookAndFeelInfo[i]);
-            jRadioButtonMenueItem.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent itemEvent) {
-                    JRadioButtonMenuItem jRadioButtonMenueItem2 = (JRadioButtonMenuItem) itemEvent.getSource();
-                    if (jRadioButtonMenueItem2.isSelected()) {
-                        info = (UIManager.LookAndFeelInfo) jRadioButtonMenueItem2.getClientProperty("UIKey");
+            jRadioButtonMenueItem.setSelected(UIManager.getLookAndFeel().getName().equals(andFeelInfo.getName()));
+            jRadioButtonMenueItem.putClientProperty("UIKey", andFeelInfo);
+            jRadioButtonMenueItem.addItemListener(itemEvent -> {
+                JRadioButtonMenuItem jRadioButtonMenueItem2 = (JRadioButtonMenuItem) itemEvent.getSource();
+                if (jRadioButtonMenueItem2.isSelected()) {
+                    info = (UIManager.LookAndFeelInfo) jRadioButtonMenueItem2.getClientProperty("UIKey");
 
-                        try {
-                            UIManager.setLookAndFeel(info.getClassName());
-                            SwingUtilities.updateComponentTreeUI(MainFrame.this);
-                            SwingUtilities.updateComponentTreeUI(jInternalFrame.getContentPane());
-                        } catch (Exception e) {
-                            System.err.println("unable to set UI " + e.getMessage());
-                        }
+                    try {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        SwingUtilities.updateComponentTreeUI(MainFrame.this);
+                        SwingUtilities.updateComponentTreeUI(jInternalFrame.getContentPane());
+                    } catch (Exception e) {
+                        System.err.println("unable to set UI " + e.getMessage());
                     }
                 }
             });
@@ -220,7 +199,7 @@ public class MainFrame extends JFrame implements ActionListener {
         } else {
             if (play != null) {
                 play.setSuspended(true);
-                if (play.getSuspended() == true) {
+                if (play.getSuspended()) {
                     play = null;
                 }
             }
@@ -282,8 +261,7 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void setFrameNumber(int frameNumber) {
-        Integer Int = Integer.valueOf(frameNumber);
-        frameText.setText(Int.toString());
+        frameText.setText(Integer.toString(frameNumber));
     }
 
     /**
@@ -307,110 +285,127 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent ae) {
         String command = ae.getActionCommand();
-        if (command.equals("Exit")) {
-            jMenuFileExit();
-        } else if (command.equals("Open")) {
-            jMenuFileOpen();
-        } else if (command.equals("Scale 1:1")) {
-            if (yuvViewer != null) {
-                yuvViewer.setScale(1);
-            }
-        } else if (command.equals("Scale 1:2")) {
-            if (yuvViewer != null) {
-                if (play != null) {
-                    play.setSuspended(true);
-                    if (play.getSuspended() == true) {
-                        play = null;
-                    }
+        switch (command) {
+            case "Exit":
+                jMenuFileExit();
+                break;
+            case "Open":
+                jMenuFileOpen();
+                break;
+            case "Scale 1:1":
+                if (yuvViewer != null) {
+                    yuvViewer.setScale(1);
                 }
-                yuvViewer.setScale(2);
-            } else {
-                jMenuScale1.setSelected(true);
-            }
-        } else if (command.equals("Scale 1:4")) {
-            if (yuvViewer != null) {
-                if (play != null) {
-                    play.setSuspended(true);
-                    if (play.getSuspended() == true) {
-                        play = null;
+                break;
+            case "Scale 1:2":
+                if (yuvViewer != null) {
+                    if (play != null) {
+                        play.setSuspended(true);
+                        if (play.getSuspended()) {
+                            play = null;
+                        }
                     }
-                }
-                yuvViewer.setScale(4);
-            } else {
-                jMenuScale1.setSelected(true);
-            }
-        } else if (command.equals("Scale 1:8")) {
-            if (yuvViewer != null) {
-                if (play != null) {
-                    play.setSuspended(true);
-                    if (play.getSuspended() == true) {
-                        play = null;
-                    }
-                }
-                yuvViewer.setScale(8);
-            } else {
-                jMenuScale1.setSelected(true);
-            }
-        } else if (command.equals("Show Y")) {
-            if (yuvViewer != null) {
-                yuvViewer.setY(jCheckBoxMenuItemShowY.getState());
-            } else {
-                jCheckBoxMenuItemShowY.setState(true);
-            }
-        } else if (command.equals("Show U")) {
-            if (yuvViewer != null) {
-                yuvViewer.setU(jCheckBoxMenuItemShowU.getState());
-            } else {
-                jCheckBoxMenuItemShowU.setState(true);
-            }
-        } else if (command.equals("Show V")) {
-            if (yuvViewer != null) {
-                yuvViewer.setV(jCheckBoxMenuItemShowV.getState());
-            } else {
-                jCheckBoxMenuItemShowV.setState(true);
-            }
-        } else if (command.equals("StepBack")) {
-            if (!yuvViewer.readLastData()) {
-                yuvViewer.fillColors();
-                yuvViewer.repaint();
-            }
-        } else if (command.equals("Play")) {
-            if (play == null) {
-                play = yuvViewer.new Play();
-                if (play.getSuspended() == true) {
-                    play.setSuspended(false);
+                    yuvViewer.setScale(2);
                 } else {
+                    jMenuScale1.setSelected(true);
+                }
+                break;
+            case "Scale 1:4":
+                if (yuvViewer != null) {
+                    if (play != null) {
+                        play.setSuspended(true);
+                        if (play.getSuspended()) {
+                            play = null;
+                        }
+                    }
+                    yuvViewer.setScale(4);
+                } else {
+                    jMenuScale1.setSelected(true);
+                }
+                break;
+            case "Scale 1:8":
+                if (yuvViewer != null) {
+                    if (play != null) {
+                        play.setSuspended(true);
+                        if (play.getSuspended()) {
+                            play = null;
+                        }
+                    }
+                    yuvViewer.setScale(8);
+                } else {
+                    jMenuScale1.setSelected(true);
+                }
+                break;
+            case "Show Y":
+                if (yuvViewer != null) {
+                    yuvViewer.setY(jCheckBoxMenuItemShowY.getState());
+                } else {
+                    jCheckBoxMenuItemShowY.setState(true);
+                }
+                break;
+            case "Show U":
+                if (yuvViewer != null) {
+                    yuvViewer.setU(jCheckBoxMenuItemShowU.getState());
+                } else {
+                    jCheckBoxMenuItemShowU.setState(true);
+                }
+                break;
+            case "Show V":
+                if (yuvViewer != null) {
+                    yuvViewer.setV(jCheckBoxMenuItemShowV.getState());
+                } else {
+                    jCheckBoxMenuItemShowV.setState(true);
+                }
+                break;
+            case "StepBack":
+                if (!yuvViewer.readLastData()) {
+                    yuvViewer.fillColors();
+                    yuvViewer.repaint();
+                }
+                break;
+            case "Play":
+                if (play == null) {
+                    play = yuvViewer.new Play();
+                    if (play.getSuspended()) {
+                        play.setSuspended(false);
+                    } else {
+                        play.start();
+                    }
+                } else if (play.getEndOfFile()) {
+                    play = null;
+                    yuvViewer.prepare();
+                    play = yuvViewer.new Play();
                     play.start();
                 }
-            } else if (play.getEndOfFile()) {
-                play = null;
+                break;
+            case "StepForeward":
+                if (!yuvViewer.readData()) {
+                    yuvViewer.fillColors();
+                    yuvViewer.repaint();
+                }
+                break;
+            case "Pause":
+                if (play == null) {
+                    play = yuvViewer.new Play();
+                    play.start();
+                } else {
+                    play.setSuspended(true);
+                    if (play.getSuspended()) {
+                        play = null;
+                    }
+                }
+                break;
+            case "Rewind":
                 yuvViewer.prepare();
-                play = yuvViewer.new Play();
-                play.start();
-            }
-        } else if (command.equals("StepForeward")) {
-            if (!yuvViewer.readData()) {
                 yuvViewer.fillColors();
                 yuvViewer.repaint();
-            }
-        } else if (command.equals("Pause")) {
-            if (play == null) {
-                play = yuvViewer.new Play();
-                play.start();
-            } else {
-                play.setSuspended(true);
-                if (play.getSuspended() == true) {
-                    play = null;
-                }
-            }
-        } else if (command.equals("Rewind")) {
-            yuvViewer.prepare();
-            yuvViewer.fillColors();
-            yuvViewer.repaint();
-        } else if (command.equals("About")) {
-            jMenuHelpAbout();
-        } else {
-            System.err.println("Command not found");
+                break;
+            case "About":
+                jMenuHelpAbout();
+                break;
+            default:
+                System.err.println("Command not found");
+                break;
         }
     }
 
