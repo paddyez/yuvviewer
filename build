@@ -1,39 +1,43 @@
 #!/bin/bash
+CWD="${PWD}"
+JVM="/usr/lib/jvm/"
+JDK="java-14-openjdk-amd64"
+GUI="src/org/yuvViewer/gui/"
+UTILS="src/org/yuvViewer/utils/"
+INCLUDE="/include/"
+LINUX="linux/"
 if type ant > /dev/null
 then
 	ant
 else
-	echo 'Installing Apache Ant is not installed'
-	echo 'Make shure ant exists is in your path and is executable'
+	echo 'Apache Ant is not installed. Make shure ant exists is in your path and is executable'
 	echo 'Installing Apache Ant http://ant.apache.org/manual/install.html'
 fi
-#cd gui
 #javap -s -p YUVViewer
-cd ~/IdeaProjects/yuvviewer/
 if type javah > /dev/null
 then
-	javac -h src/org/yuvViewer/gui/ src/org/yuvViewer/gui/FrameAboutBox.java \
-	src/org/yuvViewer/gui/MainFrame.java \
-	src/org/yuvViewer/gui/SettingsDialog.java \
-	src/org/yuvViewer/gui/YUVViewer.java \
-	src/org/yuvViewer/utils/YUVDeclaration.java \
-	src/org/yuvViewer/utils/ExtensionFileFilter.java \
-	src/org/yuvViewer/utils/ExtensionUtils.java  \
-	src/org/yuvViewer/utils/WholeNumberTextField.java
+	javac -h "${GUI}" "${GUI}FrameAboutBox.java" \
+	"${GUI}MainFrame.java" \
+	"${GUI}SettingsDialog.java" \
+	"${GUI}YUVViewer.java" \
+	"${UTILS}YUVDeclaration.java" \
+	"${UTILS}ExtensionFileFilter.java" \
+	"${UTILS}ExtensionUtils.java"  \
+	"${UTILS}WholeNumberTextField.java"
 else
 	echo 'javah is not installed'
 fi
-	cd ~/IdeaProjects/yuvviewer/src/org/yuvViewer/gui/
+	cd "${GUI}"
 if type gcc > /dev/null
 then
-	gcc -shared -I/usr/lib/jvm/java-14-openjdk-amd64/include/linux/ -I/usr/lib/jvm/java-14-openjdk-amd64/include/ YUVViewerImplementation.c -o libcalc.so
-	sudo cp libcalc.so /usr/local/lib/
+	gcc -shared -I"${JVM}${JDK}${INCLUDE}${LINUX}" -I"${JVM}${JDK}${INCLUDE}" YUVViewerImplementation.c -o libcalc.so
+	sudo mv libcalc.so /usr/local/lib/
 else
 	echo 'gcc is not installed'
 fi
 if type java > /dev/null
 then
-	java -cp ~/IdeaProjects/yuvviewer/src/:. org.yuvViewer.Main
+	java -cp "${CWD}/src/:." org.yuvViewer.Main
 else
 	echo 'java is not installed'
 fi
