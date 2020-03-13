@@ -212,7 +212,6 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 fillFastColors();
                 repaint();
                 try {
-                    sleep(1);
                     if (threadSuspended) {
                         synchronized (this) {
                             while (threadSuspended)
