@@ -17,7 +17,6 @@
 
 #include <jni.h>
 #include "org_yuvViewer_gui_YUVViewer.h"
-#include "org_yuvViewer_gui_YUVViewer_Play.h"
 
 /**
  * http://msdn.microsoft.com/library/en-us/dnwmt/html/YUVFormats.asp
