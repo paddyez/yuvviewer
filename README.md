@@ -1,56 +1,47 @@
-This is a description how it works on my Debian Gnu Linux system. 
-Comments have been added for building on OS X.
+This is a description how it works on my Ubuntu Gnu Linux system using openjdk 14, ant, bash and clang/gcc (Comments have been added for building on OS X). Maybe a gradle and/or maven version will follow. Also a big code cleanup and improvements are planned depending on my time.
 
-Setup Enviornment
------------------
+1. Clone the project or download and extract it.
+2. Change to the project directory.
 
-- On OS X step 1 and 2 can be skipped
-- On MS Windows skip to Windows section
+## Setup Enviornment
 
-1) mkdir java in your home directory and make sure that ~/java/jni/lib exists.
-2) LD_LIBRARY_PATH in .bashrc should look like this:
+[user]@[computer]:~$ echo $LD_LIBRARY_PATH
 
-	if [ -z $LD_LIBRARY_PATH ]; then
-	    export LD_LIBRARY_PATH=~/java/jni/lib
-	fi
+Should return a valid path e.g.:
 
-If it already exists just add :~/java/jni/lib
+```bash 
+echo $LD_LIBRARY_PATH
+/usr/local/lib/
+```
 
-2.1) 	
-	exec bash
-	[user]@[computer]:~$ echo $LD_LIBRARY_PATH 
+If not you might want to add
 
-Should now look like this: /home/[user]/java/jni/lib.
+```bash export LD_LIBRARY_PATH=/usr/local/lib/```
 
-3) Extract sources in ~/java
+to your .bashrc or .profile
 
-Without Ant
------------
+### With Ant
 
-1) cd ~/java/yuvViewer_nativ/
-2) javac -source 1.4 org/yuvViewer/Main.java
-3) cd ~/java/yuvViewer_nativ/org/yuvViewer/gui/
-4) javah -jni YUVViewer
-5) gcc -shared -I/usr/local/java/include/linux -I/usr/local/java/include/ \
-   YUVViewerImplementation.c -o libcalc.so
-6) mv libcalc.so ~/java/jni/lib/
-7) java -cp ~/java/yuvViewer_nativ/ org.yuvViewer.Main
+Just type: ./build
 
-With Ant
---------
+### Without Ant
 
-1) cd ~/java/yuvViewer_nativ/org/yuvViewer/
-2) ./build
+Assuming you are in PROJECT_DIRCTORY
 
-Packaging
----------
+```bash 
+cd src
+javac (-source 14) org/yuvViewer/Main.java
+cd org/yuvViewer/gui/
+javah -jni YUVViewer (will not work with java version > 8 use javac -h instead see build file)
+clang (or gcc) -shared (other compiler options) -I/usr/local/java/include/linux -I/usr/local/java/include/ -o libcalc.so YUVViewerImplementation.c
+mv libcalc.so $LD_LIBRARY_PATH
+cd PROJECT_DIRCTORY
+java -cp src/:. org.yuvViewer.Main
+```
 
-1) cd ~/java/yuvViewer_nativ/
-2) ./package
-3) java -jar yuvViewer.jar
+__The followning sections have not been updated for more than 5 years__ 
 
-Mac OS X-Notes
---------------
+#### Mac OS X-Notes
 
 by Chris Schaab <cschaab@vt.edu> for Mac OS X Aug 16 2004
 
@@ -67,19 +58,26 @@ The buildMac script now handles different architetures as arguments, eg.
 ./buildMac G4.  The package script has been added, allowing 
 a .app to be built with Jar Bundler from the Developer Tools
 
-Windows
--------
+#### Windows
 
-1) make sure cygwin and gcc is installed on your system
-2) make sure a jsdk version 1.4 is installed on your system
-3) make sure system environment variable JAVA_HOME is set to you base directory where you installed jsdk (i.e. c:\j2sdk1.4_08)
-4) open cygwin bash console
-5) mkdir ~/java; cd ~/java
-6) extract tar in home dir, will create ~/yuvViewer_nativ directory
-6) cd ~/java/yuvViewer_nativ
-7) javac -source 1.4 org/yuvViewer/Main.java
-7) cd ~/java/yuvViewer_nativ/org/yuvViewer/gui/
-8) javah -jni YUVViewer
-9) gcc -mno-cygwin -I$JAVA_HOME/include -I$JAVA_HOME/include/win32 -Wl,--add-stdcall-alias -shared -o calc.dll YUVViewerImplementation.c
-10) mv calc.dll $JAVA_HOME/jni/lib/
-11) java -Djava.library.path=$JAVA_HOME/jni/lib -cp ~/yuvViewer_nativ org.yuvViewer.Main
+1. make sure cygwin and gcc is installed on your system
+2. make sure a jsdk version 1.4 is installed on your system
+3. make sure system environment variable JAVA_HOME is set to you base directory where you installed jsdk (i.e. c:\j2sdk1.4_08.
+4. open cygwin bash console
+5. mkdir ~/java; cd ~/java
+6. extract tar in home dir, will create ~/yuvViewer_nativ directory
+6. cd ~/java/yuvViewer_nativ
+7. javac -source 1.4 org/yuvViewer/Main.java
+7. cd ~/java/yuvViewer_nativ/org/yuvViewer/gui/
+8. javah -jni YUVViewer
+9. gcc -mno-cygwin -I$JAVA_HOME/include -I$JAVA_HOME/include/win32 -Wl,--add-stdcall-alias -shared -o calc.dll YUVViewerImplementation.c
+10. mv calc.dll $JAVA_HOME/jni/lib/
+11. java -Djava.library.path=$JAVA_HOME/jni/lib -cp ~/yuvViewer_nativ org.yuvViewer.Main
+
+##### Borland
+
+I compiled calc.dll using Borland C++ Compiler 5.5 It is freeware, but you have to make an account. site: http://www.codegear.com/downloads/free/cppbuilder To build the calc.dll library using Borland compiler, just execute buildWinBcc.bat
+
+I compiled calc.dll using MinGW(Minimalist GNU for Windows) I used gcc version 3.4.2. It is freeware. site: http://www.mingw.org/download.shtml To build the calc.dll library using MinGW compiler, just execute buildWinGcc.bat
+
+I added the file test_176x144.yuv (YUV4:2:0) to check that yuvViewer is ready to run. If you open the file with yuvViewer, you should see 4 colours: gree(top-left), cyan(top-right), orange(bottom-left) and pink(bottom-right).
