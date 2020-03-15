@@ -29,14 +29,14 @@ Just type: ./build
 Assuming you are in PROJECT_DIRCTORY
 
 ```bash 
-cd src/main/
+cd src/main/java/
 javac (-source 14) org/yuvViewer/Main.java
 cd org/yuvViewer/gui/
 javah -jni YUVViewer (will not work with java version > 8 use javac -h instead see build file)
 clang (or gcc) -shared (other compiler options) -I/usr/local/java/include/linux -I/usr/local/java/include/ -o libcalc.so YUVViewerImplementation.c
 mv libcalc.so $LD_LIBRARY_PATH
 cd PROJECT_DIRCTORY
-java -cp src/main/:. org.yuvViewer.Main
+java -cp src/main/java/:. org.yuvViewer.Main
 ```
 
 #### YUV files

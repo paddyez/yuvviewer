@@ -1,13 +1,13 @@
 #!/bin/bash
 cwd="${PWD}/"
 flags=(-shared -std=c17 -Wall -Wextra -pedantic -O3 -Wconversion -DNDEBUG -flto -lm)
-gui='src/main/org/yuvViewer/gui/'
+gui='src/main/java/org/yuvViewer/gui/'
 include='/include/'
 jdk='java-14-openjdk-amd64'
 jvm='/usr/lib/jvm/'
 linux='linux/'
 libcalc='libcalc.so'
-utils='src/main/org/yuvViewer/utils/'
+utils='src/main/java/org/yuvViewer/utils/'
 options=(${flags[@]} -I${jvm}${jdk}${include} -I${jvm}${jdk}${include}${linux} -o ${libcalc})
 if type ant >/dev/null 2>&1
 then
@@ -51,7 +51,7 @@ else
 fi
 if type java >/dev/null 2>&1
 then
-	java -cp "${cwd}src/main/:." org.yuvViewer.Main
+	java -cp "${cwd}src/main/java/:." org.yuvViewer.Main
 else
 	echo 'java is not installed'
 fi
