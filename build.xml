@@ -1,11 +1,11 @@
 <project default="compile" basedir=".">
   <target name="compile" depends="clean">
-    <javac srcdir="src/main/org/yuvViewer" source="11" includeantruntime="false" optimize="true">
+    <javac srcdir="src/main/java/org/yuvViewer" source="11" includeantruntime="false" optimize="true">
       <compilerarg value="-Xlint:deprecation" />
     </javac>
   </target>
   <target name="clean">
-    <delete><fileset dir="src/main/org/yuvViewer" includes="**/*.class"/></delete>
-    <delete><fileset dir="src/main/org/yuvViewer" includes="**/*~"/></delete>
+    <delete><fileset dir="src/main/java/org/yuvViewer" includes="**/*.class"/></delete>
+    <delete><fileset dir="src/main/java/org/yuvViewer" includes="**/*~"/></delete>
   </target>
 </project>
