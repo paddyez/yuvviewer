@@ -1,0 +1,23 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+group = 'org.yuvViewer'
+version = '1.0-SNAPSHOT'
+description = """yuvViewer"""
+sourceCompatibility = 14
+targetCompatibility = 14
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.yuvViewer.Main'
+        )
+    }
+}
+repositories {
+     maven { url "https://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:'4.13'
+}
