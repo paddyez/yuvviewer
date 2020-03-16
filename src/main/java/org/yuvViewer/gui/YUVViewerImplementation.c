@@ -20,8 +20,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
                                                        jbyteArray yData,
                                                        jbyteArray uData,
                                                        jbyteArray vData,
-                                                       jintArray rgbImage
-) {
+                                                       jintArray rgbImage) {
     jint *rgbInt = (*env)->GetIntArrayElements(env, rgbImage, 0);
     jbyte *cyData = (*env)->GetByteArrayElements(env, yData, 0);
     jbyte *cuData = (*env)->GetByteArrayElements(env, uData, 0);
@@ -134,8 +133,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastColoredRGBImage(JNIEnv *env,
                                                               jbyteArray yData,
                                                               jbyteArray uData,
                                                               jbyteArray vData,
-                                                              jintArray rgbImage
-) {
+                                                              jintArray rgbImage) {
     jint *rgbInt = (*env)->GetIntArrayElements(env, rgbImage, 0);
     jbyte *cyData = (*env)->GetByteArrayElements(env, yData, 0);
     jbyte *cuData = (*env)->GetByteArrayElements(env, uData, 0);
@@ -223,8 +221,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
                                                    jbyteArray yData,
                                                    jbyteArray uData,
                                                    jbyteArray vData,
-                                                   jintArray rgbImage
-) {
+                                                   jintArray rgbImage) {
     jint *rgbInt = (*env)->GetIntArrayElements(env, rgbImage, 0);
     jbyte *cyData = (*env)->GetByteArrayElements(env, yData, 0);
     jbyte *cuData = (*env)->GetByteArrayElements(env, uData, 0);
@@ -338,8 +335,7 @@ Java_org_yuvViewer_gui_YUVViewer_resizeRGBImage(JNIEnv *env,
                                                 jint width,
                                                 jint height,
                                                 jintArray scaledRGBImage,
-                                                jintArray rgbImage
-) {
+                                                jintArray rgbImage) {
     jint *scaledImage = (*env)->GetIntArrayElements(env, scaledRGBImage, 0);
     jint *image = (*env)->GetIntArrayElements(env, rgbImage, 0);
     for (int i = 0; i < height; i++) {
