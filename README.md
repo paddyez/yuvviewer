@@ -20,11 +20,23 @@ If not you might want to add
 
 to your .bashrc or .profile
 
-### With Ant
+If you get the following error:
+Gtk-Message: HH:mm:ss.zzz: Failed to load module "canberra-gtk-module"
+[user]@[computer]:~$ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
 
-Just type: ./build
+### Gradle
 
-### Without Ant
+```bash gradle compileJava jar```
+
+### Maven
+
+```bash mvn verify```
+
+### Ant
+
+```bash ./build.sh```
+
+### Command line
 
 Assuming you are in PROJECT_DIRCTORY
 
