@@ -1,6 +1,6 @@
 #!/bin/bash
 cwd="${PWD}/"
-flags=(-shared -std=c17 -Wall -Wextra -pedantic -O3 -Wconversion -DNDEBUG -flto -lm)
+flags=( '-shared' '-std=c17' '-Wall' '-Wextra' '-pedantic' '-O3' '-Wconversion' '-DNDEBUG' '-flto' '-lm' )
 gui='src/main/java/org/yuvViewer/gui/'
 include='/include/'
 jdk='java-14-openjdk-amd64'
@@ -8,7 +8,7 @@ jvm='/usr/lib/jvm/'
 linux='linux/'
 libcalc='libcalc.so'
 utils='src/main/java/org/yuvViewer/utils/'
-options=(${flags[@]} -I${jvm}${jdk}${include} -I${jvm}${jdk}${include}${linux} -o ${libcalc})
+options=( "${flags[@]}" "-I${jvm}${jdk}${include}" "-I${jvm}${jdk}${include}${linux}" '-o' "${libcalc}" )
 if type ant >/dev/null 2>&1
 then
 	ant
@@ -30,7 +30,7 @@ then
 else
 	echo 'javac is not installed'
 fi
-	cd "${gui}"
+	cd "${gui}" || exit
 if type clang >/dev/null 2>&1
 then
   echo 'Compiling using clang see logfile.log for result'

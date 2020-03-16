@@ -1,6 +1,6 @@
 <project default="compile" basedir=".">
   <target name="compile" depends="clean">
-    <javac srcdir="src/main/java/org/yuvViewer" source="11" includeantruntime="false" optimize="true">
+    <javac srcdir="src/main/java/org/yuvViewer" source="14" target="14" includeantruntime="false" optimize="true">
       <compilerarg value="-Xlint:deprecation" />
     </javac>
   </target>
