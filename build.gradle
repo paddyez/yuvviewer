@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 group = 'org.yuvViewer'
 version = '1.0-SNAPSHOT'
-description = """yuvViewer"""
+description = "yuvViewer"
 sourceCompatibility = 14
 targetCompatibility = 14
 tasks.withType(JavaCompile) {
