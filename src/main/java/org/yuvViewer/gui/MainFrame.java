@@ -8,7 +8,7 @@ import javax.swing.*;
 import org.yuvViewer.utils.*;
 
 /**
- * @author Patrick Zoerner
+ * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class MainFrame extends JFrame implements ActionListener {

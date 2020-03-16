@@ -6,7 +6,7 @@ import java.awt.Dimension;
 /**
  * <p>Provides methods</p>
  *
- * @author Patrick Zoerner
+ * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class ExtensionUtils implements YUVDeclaration {

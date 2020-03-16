@@ -6,19 +6,17 @@ import java.awt.*;
 import org.yuvViewer.gui.*;
 
 class Main {
-    MainFrame mainFrame;
-
 	public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new Main();
+        createMainFrame();
     }
 
-    Main() {
-        mainFrame = new MainFrame();
+    static void createMainFrame() {
+        final MainFrame mainFrame = new MainFrame();
         mainFrame.validate();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         mainFrame.setSize(new Dimension(screenSize.width - 100, screenSize.height - 100));

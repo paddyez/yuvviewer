@@ -6,7 +6,7 @@ import java.io.File;
 /**
  * <p>Custom FileFilter. At the moment it only shows *.yuv files (All Files is default).
  *
- * @author Patrick Zoerner
+ * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class ExtensionFileFilter extends FileFilter {

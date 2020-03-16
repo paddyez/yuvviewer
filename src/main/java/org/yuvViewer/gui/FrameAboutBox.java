@@ -8,16 +8,15 @@ import java.awt.event.WindowEvent;
 
 /**
  * <p>The JDialog showing information about the program</p>
- * <p>Title: Reference Decoder MPEG-4</p>
- * <p>Description: Reference Decoder MPEG-4</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: sci-worx</p>
+ * <p>Title: YUV viewer</p>
+ * <p>Description: Versatile YUV viewing utility</p>
+ * <p>Copyright: © 2002</p>
+ * <p>Company: </p>
  *
- * @author Patrick Zoerner
+ * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class FrameAboutBox extends JDialog implements ActionListener {
-    //    private final String separator=File.separator;
     private static final JPanel panel1 = new JPanel();
     private static final JPanel panel2 = new JPanel();
     private static final JPanel insetsPanel1 = new JPanel();
@@ -35,7 +34,7 @@ public class FrameAboutBox extends JDialog implements ActionListener {
     private static final GridLayout gridLayout1 = new GridLayout();
     private static final String product = "YUV Viewer";
     private static final String version = "1.0";
-    private static final String copyright = "Copyright (c) 2003";
+    private static final String copyright = "Copyright © 2002";
     private static final String comments = "Versatile YUV viewing utility";
 
     public FrameAboutBox(MainFrame parent) {
