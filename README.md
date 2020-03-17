@@ -33,9 +33,10 @@ and you can skip the java build steps.
 ## Java build
 ### Notes
 
-If you get the following error:
-Gtk-Message: HH:mm:ss.zzz: Failed to load module "canberra-gtk-module"
-[user]@[computer]:~$ sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+If you get the following message: *Gtk-Message: HH:mm:ss.zzz: Failed to load module "canberra-gtk-module"*
+```bash
+apt install libcanberra-gtk-module libcanberra-gtk3-module
+```
 
 ### Gradle
 
