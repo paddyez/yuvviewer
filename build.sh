@@ -27,10 +27,10 @@ function create_native_library() {
     cd "${gui}" || exit
     if type clang >/dev/null 2>&1; then
       echo 'Compiling using clang see logfile.log for result'
-      clang "${options[@]}" YUVViewerImplementation.c >> "${cwd}logfile.log" 2>&1
+      clang "${options[@]}" YUVViewerImplementation.c >>"${cwd}logfile.log" 2>&1
     elif type gcc >/dev/null 2>&1; then
       echo 'Compiling using gcc see logfile.log for result'
-      gcc "${options[@]}" YUVViewerImplementation.c >> "${cwd}logfile.log" 2>&1
+      gcc "${options[@]}" YUVViewerImplementation.c >>"${cwd}logfile.log" 2>&1
     else
       echo 'clang or gcc is not installed'
     fi
@@ -41,36 +41,48 @@ function create_native_library() {
   fi
 }
 
-add_date() {
+function add_date() {
   {
-  echo '----'
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-  echo '----'
-  } >> "${cwd}logfile.log"
+    echo '----'
+    date -u +"%Y-%m-%dT%H:%M:%SZ"
+    echo '----'
+  } >>"${cwd}logfile.log"
+}
+
+function cleanup() {
+  add_date
+  {
+    echo 'Started cleanup'
+    gradle clean
+    mvn clean
+    ant clean
+    # Not using force in the next two lines!
+    find "${cwd}" -name '*'.class -exec rm {} \;
+    rm "${cwd}src/main/java/org/yuvViewer/gui/org_yuvViewer_gui_YUVViewer.h"
+    echo 'Finished cleanup'
+  } >>"${cwd}logfile.log" 2>&1
 }
 
 rm -f "${cwd}logfile.log"
 touch "${cwd}logfile.log"
+#cleanup
 add_date
 echo 'Creating native library with Java Native Interface (JNI)'
 create_native_library
 add_date
 
 cd "${cwd}" || exit
-if type gradle >/dev/null 2>&1
-then
+if type gradle >/dev/null 2>&1; then
   echo 'Compiling, bundling and executing using gradle see logfile.log for result'
-  gradle compileJava jar >> "${cwd}logfile.log" 2>&1
+  gradle compileJava jar >>"${cwd}logfile.log" 2>&1
   java -jar build/libs/yuvViewer-1.0-SNAPSHOT.jar
-elif type mvn >/dev/null 2>&1
-then
+elif type mvn >/dev/null 2>&1; then
   echo 'Compiling, bundling and executing using mvn see logfile.log for result'
-  mvn verify >> "${cwd}logfile.log" 2>&1
+  mvn verify >>"${cwd}logfile.log" 2>&1
   java -jar target/yuvViewer-1.0-SNAPSHOT.jar
-elif type ant >/dev/null 2>&1
-then
+elif type ant >/dev/null 2>&1; then
   echo 'Compiling, bundling and executing using ant see logfile.log for result'
-  ant run >> "${cwd}logfile.log" 2>&1
+  ant run >>"${cwd}logfile.log" 2>&1
 else
   echo 'Gradle, Maven and Ant not istalled. Make sure one of them exists, is in your path and is executable'
   exit 1
