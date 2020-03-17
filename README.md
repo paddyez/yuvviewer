@@ -75,6 +75,8 @@ java -cp src/main/java/:. org.yuvViewer.Main
 
 ## YUV files
 
+Good read about YUV-format https://en.wikipedia.org/wiki/YUV
+
 Obtaining YUV files:
 
 * http://trace.eas.asu.edu/yuv/
