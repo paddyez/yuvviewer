@@ -1,11 +1,22 @@
 <project default="compile" basedir=".">
-  <target name="compile" depends="clean">
-    <javac srcdir="src/main/java/org/yuvViewer" source="14" target="14" includeantruntime="false" optimize="true">
+  <target name="compile">
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src/main/" destdir="build/classes" source="14" target="14" includeantruntime="false" optimize="true">
       <compilerarg value="-Xlint:deprecation" />
     </javac>
   </target>
   <target name="clean">
-    <delete><fileset dir="src/main/java/org/yuvViewer" includes="**/*.class"/></delete>
-    <delete><fileset dir="src/main/java/org/yuvViewer" includes="**/*~"/></delete>
+    <delete dir="build"/>
+  </target>
+  <target name="jar" depends="compile">
+    <jar destfile="build/yuvViewer-1.0-SNAPSHOT.jar" basedir="build/classes">
+      <fileset dir="src/main/resources" includes="img/**" />
+      <manifest>
+        <attribute name="Main-Class" value="org.yuvViewer.Main"/>
+      </manifest>
+    </jar>
+  </target>
+  <target name="run" depends="jar">
+    <java jar="build/yuvViewer-1.0-SNAPSHOT.jar" fork="true"/>
   </target>
 </project>

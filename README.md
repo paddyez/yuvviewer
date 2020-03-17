@@ -1,24 +1,37 @@
-This is a description how it works on my Ubuntu Gnu Linux system using openjdk 14, ant, bash and clang/gcc (Comments have been added for building on OS X). Maybe a gradle and/or maven version will follow. Also a big code cleanup and improvements are planned depending on my time.
+This is a description how it works on my Ubuntu Gnu Linux system using openjdk 14, gradle/maven/ant, bash and clang/gcc (Comments have been added for building on OS X and Windows but are outdated).
 
 1. Clone the project or download and extract it.
 2. Change to the project directory.
 
 ## Setup Enviornment
 
-[user]@[computer]:~$ echo $LD_LIBRARY_PATH
-
-Should return a valid path e.g.:
+LD_LIBRARY_PATH should return a valid path e.g.:
 
 ```bash 
 echo $LD_LIBRARY_PATH
 /usr/local/lib/
 ```
 
-If not you might want to add
+If not you might want to add:
 
-```bash export LD_LIBRARY_PATH=/usr/local/lib/```
+```bash
+export LD_LIBRARY_PATH=/usr/local/lib/
+```
 
 to your .bashrc or .profile
+
+### Build the native library
+
+There is a function in **build.sh** bash script called create_native_library that does everything. Just call:
+
+```bash
+./build.sh
+```
+
+and you can skip the java build steps.
+
+## Java build
+### Notes
 
 If you get the following error:
 Gtk-Message: HH:mm:ss.zzz: Failed to load module "canberra-gtk-module"
@@ -26,15 +39,23 @@ Gtk-Message: HH:mm:ss.zzz: Failed to load module "canberra-gtk-module"
 
 ### Gradle
 
-```bash gradle compileJava jar```
+```bash
+gradle compileJava jar
+java -jar build/libs/yuvViewer-1.0-SNAPSHOT.jar
+```
 
 ### Maven
 
-```bash mvn verify```
+```bash
+mvn verify
+java -jar target/yuvViewer-1.0-SNAPSHOT.jar
+```
 
 ### Ant
 
-```bash ./build.sh```
+```bash
+ant run
+```
 
 ### Command line
 
@@ -51,7 +72,7 @@ cd PROJECT_DIRCTORY
 java -cp src/main/java/:. org.yuvViewer.Main
 ```
 
-#### YUV files
+## YUV files
 
 Obtaining YUV files:
 
@@ -61,7 +82,8 @@ Obtaining YUV files:
 
 __The followning sections have not been updated for more than 5 years__ 
 
-#### Mac OS X-Notes
+## Other OS
+### Mac OS X-Notes
 
 by Chris Schaab <cschaab@vt.edu> for Mac OS X Aug 16 2004
 
@@ -78,7 +100,7 @@ The buildMac script now handles different architetures as arguments, eg.
 ./buildMac G4.  The package script has been added, allowing 
 a .app to be built with Jar Bundler from the Developer Tools
 
-#### Windows
+### Windows
 
 1. make sure cygwin and gcc is installed on your system
 2. make sure a jsdk version 1.4 is installed on your system
@@ -94,7 +116,7 @@ a .app to be built with Jar Bundler from the Developer Tools
 10. mv calc.dll $JAVA_HOME/jni/lib/
 11. java -Djava.library.path=$JAVA_HOME/jni/lib -cp ~/yuvViewer_nativ org.yuvViewer.Main
 
-##### Borland
+#### Borland
 
 I compiled calc.dll using Borland C++ Compiler 5.5 It is freeware, but you have to make an account. site: http://www.codegear.com/downloads/free/cppbuilder To build the calc.dll library using Borland compiler, just execute buildWinBcc.bat
 

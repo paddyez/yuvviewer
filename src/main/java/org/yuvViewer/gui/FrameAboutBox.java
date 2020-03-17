@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.net.URL;
 
 /**
  * <p>The JDialog showing information about the program</p>
@@ -51,7 +52,18 @@ public class FrameAboutBox extends JDialog implements ActionListener {
      * <p>Component initialization</p>
      */
     private void jbInit() {
-        imageLabel.setIcon(new ImageIcon(FrameAboutBox.class.getResource("movie.jpg")));
+        URL imageResource = null;
+        try {
+            imageResource = FrameAboutBox.class.getResource("movie.jpg");
+            if(imageResource == null) {
+                imageResource = FrameAboutBox.class.getResource("/img/movie.jpg");
+            }
+        } catch (NullPointerException npe) {
+            System.err.println(npe.getMessage());
+        }
+        if(imageResource != null) {
+            imageLabel.setIcon(new ImageIcon(imageResource));
+        }
         this.setTitle("About");
         panel1.setLayout(borderLayout1);
         panel2.setLayout(borderLayout2);
