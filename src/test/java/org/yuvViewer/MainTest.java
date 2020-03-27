@@ -1,34 +1,30 @@
 package org.yuvViewer;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-/**
- * Unit test for simple App.
- */
-public class MainTest
-        extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public MainTest(String testName) {
-        super(testName);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class MainTest {
+
+    private static final Logger logger = LogManager.getLogger(MainTest.class);
+
+    @BeforeAll
+    static void initAll() {
+        logger.info("@BeforeAll - executes once before all test methods in this class");
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(MainTest.class);
+    @BeforeEach
+    void init() {
+        logger.info("@BeforeEach - executes before each test method in this class");
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testMain() {
-        assertTrue(true);
+    @Test
+    void createMainFrameTest() {
+        Main.createMainFrame();
+        assertThat(true).isTrue();
     }
 }

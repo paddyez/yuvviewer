@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'maven'
 group = 'org.yuvViewer'
 version = '1.0-SNAPSHOT'
 description = "yuvViewer"
@@ -15,9 +14,16 @@ jar {
         )
     }
 }
+test {
+    useJUnitPlatform()
+}
 repositories {
      mavenCentral()
 }
 dependencies {
-    testCompile group: 'junit', name: 'junit', version:'4.13'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.1'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.15.0'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.1'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.1'
 }
