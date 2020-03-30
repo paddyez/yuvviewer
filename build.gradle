@@ -6,6 +6,8 @@ sourceCompatibility = 14
 targetCompatibility = 14
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'
+    options.deprecation = true
 }
 jar {
     manifest {
