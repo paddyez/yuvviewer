@@ -48,7 +48,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
     private boolean confirmMessage(String confirmMsg) {
         int ret;
         ret = JOptionPane.showConfirmDialog(this, confirmMsg, POPUP_CONFIRM_HEADLINE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-		return ret == JOptionPane.OK_OPTION;
+        return ret == JOptionPane.OK_OPTION;
     }
 
     private void errorMessage(String errorMessage) {
@@ -176,33 +176,19 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
             } else {
                 System.out.println("Settings not valid!");
             }
-        } else if (e.getSource() == sqcifButton) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == qcifButton) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == sifButton) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == cifButton) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == cif4Button) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == tvButton) {
-            yText.setEditable(false);
-            xText.setEditable(false);
+        } else if (e.getSource() == sqcifButton ||
+                e.getSource() == qcifButton ||
+                e.getSource() == sifButton ||
+                e.getSource() == cifButton ||
+                e.getSource() == cif4Button ||
+                e.getSource() == tvButton ||
+                e.getSource() == hd1Button ||
+                e.getSource() == hd2Button) {
+            makeEditable(false);
         } else if (e.getSource() == customButton) {
-            yText.setEditable(true);
-            xText.setEditable(true);
-        } else if (e.getSource() == hd1Button) {
-            yText.setEditable(false);
-            xText.setEditable(false);
-        } else if (e.getSource() == hd2Button) {
-            yText.setEditable(false);
-            xText.setEditable(false);
+            makeEditable(true);
+        } else {
+            assert false;
         }
     }
 
@@ -232,6 +218,8 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
             } else {
                 dimension = new Dimension(xSize, ySize);
             }
+        } else {
+            assert false;
         }
         // set color space
         if (yuvButton.isSelected()) {
@@ -239,7 +227,11 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         } else if (yOnlyButton.isSelected()) {
             colorspace = ccY;
         }
-
         return true;
+    }
+
+    private void makeEditable(boolean editable) {
+        yText.setEditable(editable);
+        xText.setEditable(editable);
     }
 }
