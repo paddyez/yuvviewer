@@ -64,7 +64,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     int colorspace;
     Point startPoint;
     Point lastLocation;
-	RandomAccessFile randomAccessFile;
+    RandomAccessFile randomAccessFile;
 
     byte[] yData;
     byte[] uData;
@@ -101,6 +101,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         setVisible(true);
     }
 
+    @Override
     public void paint(Graphics g) {
         if (scale > 1) {
             g.drawImage(scaledImage, 0, 0, Color.BLACK, this);
@@ -109,6 +110,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         }
     }
 
+    @Override
     public void update(Graphics g) {
         paint(g);
     }
@@ -207,6 +209,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             return endOfFile;
         }
 
+        @Override
         public void run() {
             while (!readData()) {
                 fillFastColors();
@@ -328,6 +331,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    @Override
     public void dispose() {
         super.dispose();
         rgbImage = null;

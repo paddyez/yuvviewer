@@ -96,6 +96,7 @@ public class FrameAboutBox extends JDialog implements ActionListener {
     /**
      * <p>Overridden so we can exit when window is closed</p>
      */
+    @Override
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             cancel();

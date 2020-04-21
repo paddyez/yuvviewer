@@ -10,6 +10,9 @@ import java.awt.Dimension;
  * @version 1.0
  */
 public class ExtensionUtils implements YUVDeclaration {
+    private ExtensionUtils() {
+    }
+
     /**
      * @param file the chosen file
      * @return the file extention as String

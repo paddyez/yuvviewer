@@ -147,6 +147,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
     /**
      * <p>Overridden so we can exit when window is closed</p>
      */
+    @Override
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             cancel();

@@ -43,11 +43,13 @@ public class WholeNumberTextField extends JTextField {
         setText(integerFormatter.format(value));
     }
 
+    @Override
     protected Document createDefaultModel() {
         return new WholeNumberDocument();
     }
 
     protected class WholeNumberDocument extends PlainDocument {
+        @Override
         public void insertString(int offs, String str, AttributeSet a)
                 throws BadLocationException {
             assert str != null;

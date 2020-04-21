@@ -408,7 +408,7 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
         }
     }
-
+    @Override
     protected void processWindowEvent(WindowEvent we) {
         super.processWindowEvent(we);
         if (we.getID() == WindowEvent.WINDOW_CLOSING) {

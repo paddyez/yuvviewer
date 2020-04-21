@@ -1,13 +1,16 @@
+plugins {
+    id "org.sonarqube" version "2.7"
+}
 apply plugin: 'java'
 group = 'org.yuvViewer'
 version = '1.0-SNAPSHOT'
 description = "yuvViewer"
-sourceCompatibility = 14
-targetCompatibility = 14
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
     options.compilerArgs << '-Xlint:deprecation'
     options.deprecation = true
+    sourceCompatibility = 14
+    targetCompatibility = 14
 }
 jar {
     manifest {
