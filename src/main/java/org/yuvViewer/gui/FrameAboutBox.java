@@ -33,10 +33,10 @@ public class FrameAboutBox extends JDialog implements ActionListener {
     private static final BorderLayout borderLayout2 = new BorderLayout();
     private static final FlowLayout flowLayout1 = new FlowLayout();
     private static final GridLayout gridLayout1 = new GridLayout();
-    private static final String product = "YUV Viewer";
-    private static final String version = "1.0";
-    private static final String copyright = "Copyright © 2002";
-    private static final String comments = "Versatile YUV viewing utility";
+    private static final String PRODUCT = "YUV Viewer";
+    private static final String VERSION = "1.0";
+    private static final String COPYRIGHT = "Copyright © 2002";
+    private static final String COMMENTS = "Versatile YUV viewing utility";
 
     public FrameAboutBox(MainFrame parent) {
         super(parent);
@@ -72,10 +72,10 @@ public class FrameAboutBox extends JDialog implements ActionListener {
         insetsPanel2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         gridLayout1.setRows(4);
         gridLayout1.setColumns(1);
-        label1.setText(product);
-        label2.setText(version);
-        label3.setText(copyright);
-        label4.setText(comments);
+        label1.setText(PRODUCT);
+        label2.setText(VERSION);
+        label3.setText(COPYRIGHT);
+        label4.setText(COMMENTS);
         insetsPanel3.setLayout(gridLayout1);
         insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
         buttonOK.setText("Ok");

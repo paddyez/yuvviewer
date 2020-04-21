@@ -41,17 +41,17 @@ public class ExtensionUtils implements YUVDeclaration {
             ext = s.substring(i + 1).toLowerCase();
         }
 		assert ext != null;
-		if (ext.equals(sqcif.toLowerCase())) {
+		if (ext.equalsIgnoreCase(sqcif)) {
             return true;
-        } else if (ext.equals(qcif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(qcif)) {
             return true;
-        } else if (ext.equals(sif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(sif)) {
             return true;
-        } else if (ext.equals(cif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(cif)) {
             return true;
-        } else if (ext.equals(cif4.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(cif4)) {
             return true;
-        } else if (ext.equals(tv.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(tv)) {
             return true;
         } else return ext.equals("yuv");
 	}
@@ -65,17 +65,17 @@ public class ExtensionUtils implements YUVDeclaration {
             ext = s.substring(i + 1).toLowerCase();
         }
 		assert ext != null;
-		if (ext.equals(sqcif.toLowerCase())) {
+		if (ext.equalsIgnoreCase(sqcif)) {
             return SQCIF;
-        } else if (ext.equals(qcif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(qcif)) {
             return QCIF;
-        } else if (ext.equals(sif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(sif)) {
             return SIF;
-        } else if (ext.equals(cif.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(cif)) {
             return CIF;
-        } else if (ext.equals(cif4.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(cif4)) {
             return CIF4;
-        } else if (ext.equals(tv.toLowerCase())) {
+        } else if (ext.equalsIgnoreCase(tv)) {
             return TV;
         }
         return null;
