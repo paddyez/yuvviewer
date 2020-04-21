@@ -9,7 +9,7 @@ import java.text.ParseException;
 import java.util.Locale;
 
 public class WholeNumberTextField extends JTextField {
-    private final Toolkit toolkit;
+    private final transient Toolkit toolkit;
     private final NumberFormat integerFormatter;
 
     public WholeNumberTextField(int value, int columns) {

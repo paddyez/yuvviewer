@@ -41,17 +41,17 @@ public class ExtensionUtils implements YUVDeclaration {
             ext = s.substring(i + 1).toLowerCase();
         }
 		assert ext != null;
-		if (ext.equalsIgnoreCase(sqcif)) {
+		if (ext.equalsIgnoreCase(YUVNames.SQCIF.name())) {
             return true;
-        } else if (ext.equalsIgnoreCase(qcif)) {
+        } else if (ext.equalsIgnoreCase(YUVNames.QCIF.name())) {
             return true;
-        } else if (ext.equalsIgnoreCase(sif)) {
+        } else if (ext.equalsIgnoreCase(YUVNames.SIF.name())) {
             return true;
-        } else if (ext.equalsIgnoreCase(cif)) {
+        } else if (ext.equalsIgnoreCase(YUVNames.CIF.name())) {
             return true;
-        } else if (ext.equalsIgnoreCase(cif4)) {
+        } else if (ext.equalsIgnoreCase(YUVNames.CIF4.name())) {
             return true;
-        } else if (ext.equalsIgnoreCase(tv)) {
+        } else if (ext.equalsIgnoreCase(YUVNames.TV.name())) {
             return true;
         } else return ext.equals("yuv");
 	}
@@ -65,18 +65,18 @@ public class ExtensionUtils implements YUVDeclaration {
             ext = s.substring(i + 1).toLowerCase();
         }
 		assert ext != null;
-		if (ext.equalsIgnoreCase(sqcif)) {
-            return SQCIF;
-        } else if (ext.equalsIgnoreCase(qcif)) {
-            return QCIF;
-        } else if (ext.equalsIgnoreCase(sif)) {
-            return SIF;
-        } else if (ext.equalsIgnoreCase(cif)) {
-            return CIF;
-        } else if (ext.equalsIgnoreCase(cif4)) {
-            return CIF4;
-        } else if (ext.equalsIgnoreCase(tv)) {
-            return TV;
+		if (ext.equalsIgnoreCase(YUVNames.SQCIF.name())) {
+            return SQCIF_DIMENSION;
+        } else if (ext.equalsIgnoreCase(YUVNames.QCIF.name())) {
+            return QCIF_DIMENSION;
+        } else if (ext.equalsIgnoreCase(YUVNames.SIF.name())) {
+            return SIF_DIMENSION;
+        } else if (ext.equalsIgnoreCase(YUVNames.CIF.name())) {
+            return CIF_DIMENSION;
+        } else if (ext.equalsIgnoreCase(YUVNames.CIF4.name())) {
+            return CIF4_DIMENSION;
+        } else if (ext.equalsIgnoreCase(YUVNames.TV.name())) {
+            return TV_DIMENSION;
         }
         return null;
     }

@@ -64,7 +64,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     int colorspace;
     Point startPoint;
     Point lastLocation;
-    RandomAccessFile randomAccessFile;
+    transient RandomAccessFile randomAccessFile;
 
     byte[] yData;
     byte[] uData;
@@ -76,8 +76,8 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
 
     int[] rgbImage = null;
     int[] scaledRGBImage = null;
-    BufferedImage bufferedImage;
-    BufferedImage scaledImage = null;
+    transient BufferedImage bufferedImage;
+    transient BufferedImage scaledImage = null;
     int scale = 1;
     int frameNumber;
 

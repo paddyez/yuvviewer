@@ -4,16 +4,18 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.yuvViewer.utils.*;
+import org.yuvViewer.gui.YUVViewer.Play;
 
 /**
  * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class MainFrame extends JFrame implements ActionListener {
-    private final UIManager.LookAndFeelInfo[] lookAndFeelInfo = UIManager.getInstalledLookAndFeels();
-    private UIManager.LookAndFeelInfo info;
+    private final transient LookAndFeelInfo[] lookAndFeelInfo = UIManager.getInstalledLookAndFeels();
+    private transient LookAndFeelInfo info;
     private final SettingsDialog settingsDialog = new SettingsDialog(this);
     private final BorderLayout borderLayout1 = new BorderLayout();
     private final JMenuBar jMenuBar1 = new JMenuBar();
@@ -54,7 +56,7 @@ public class MainFrame extends JFrame implements ActionListener {
     private Dimension yuvDimension;
     private int colorSpace;
 
-    YUVViewer.Play play;
+    transient Play play;
 
     private boolean firstTime = true;
 
@@ -408,6 +410,7 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
         }
     }
+
     @Override
     protected void processWindowEvent(WindowEvent we) {
         super.processWindowEvent(we);

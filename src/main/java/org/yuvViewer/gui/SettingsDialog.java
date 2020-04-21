@@ -208,21 +208,21 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
 
     private boolean validateSettings() {
         if (sqcifButton.isSelected()) {
-            dimension = SQCIF;
+            dimension = SQCIF_DIMENSION;
         } else if (qcifButton.isSelected()) {
-            dimension = QCIF;
+            dimension = QCIF_DIMENSION;
         } else if (sifButton.isSelected()) {
-            dimension = SIF;
+            dimension = SIF_DIMENSION;
         } else if (cifButton.isSelected()) {
-            dimension = CIF;
+            dimension = CIF_DIMENSION;
         } else if (cif4Button.isSelected()) {
-            dimension = CIF4;
+            dimension = CIF4_DIMENSION;
         } else if (tvButton.isSelected()) {
-            dimension = TV;
+            dimension = TV_DIMENSION;
         } else if (hd1Button.isSelected()) {
-            dimension = HD1;
+            dimension = HD1_DIMENSION;
         } else if (hd2Button.isSelected()) {
-            dimension = HD2;
+            dimension = HD2_DIMENSION;
         } else if (customButton.isSelected()) {
             int xSize = xText.getValue();
             int ySize = yText.getValue();
