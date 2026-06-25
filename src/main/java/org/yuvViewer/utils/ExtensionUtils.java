@@ -1,12 +1,14 @@
 package org.yuvViewer.utils;
 import java.awt.Dimension;
 import java.io.File;
+import lombok.experimental.UtilityClass;
 /**
  * <p>Provides methods</p>
  *
  * @author Patrick-Emil Zörner
  * @version 1.0
  */
+@UtilityClass
 public class ExtensionUtils {
     private static final java.util.Map<String, Dimension> EXTENSION_DIMENSIONS;
     static {
@@ -17,9 +19,6 @@ public class ExtensionUtils {
                 EXTENSION_DIMENSIONS.put(name.name().toLowerCase(), dim);
             }
         }
-    }
-
-    private ExtensionUtils() {
     }
 
     /**
@@ -89,7 +88,7 @@ public class ExtensionUtils {
         return new File(".");
     }
     public static File[] getFilesInDirectory(File f) {
-        File dirFile = ExtensionUtils.getDirectoryPath(f);//new File(strDir);
+        File dirFile = getDirectoryPath(f);
         return dirFile.listFiles();
     }
 }

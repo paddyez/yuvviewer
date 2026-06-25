@@ -29,4 +29,11 @@ class ExtensionFileFilterTest {
         val filter = ExtensionFileFilter("yuv")
         assertThat(filter.description).isEqualTo("yuv Files (*.yuv)")
     }
+
+    @Test
+    fun testAcceptFileWithoutExtension() {
+        // File without extension → accept() returns false (covers the null-extension branch)
+        val filter = ExtensionFileFilter("yuv")
+        assertThat(filter.accept(File("noextension"))).isFalse()
+    }
 }

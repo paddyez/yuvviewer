@@ -35,6 +35,8 @@ repositories {
 }
 val pitestClasspath by configurations.creating
 dependencies {
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
     implementation("org.apache.logging.log4j:log4j-api:2.26.0")
     implementation("org.apache.logging.log4j:log4j-core:2.26.0")
     testImplementation("org.assertj:assertj-core:3.27.7")
@@ -52,14 +54,18 @@ tasks.register<JavaExec>("pitest") {
     mainClass.set("org.pitest.mutationtest.commandline.MutationCoverageReport")
     val sourceSets = project.extensions.getByType<SourceSetContainer>()
     classpath = files(pitestClasspath, sourceSets["main"].runtimeClasspath, sourceSets["test"].runtimeClasspath)
+    // GUI classes (MainFrame, YUVViewer, SettingsDialog, FrameAboutBox, Main) require a
+    // display and are skipped by all tests in headless mode. Exclude them from mutation
+    // analysis so the report reflects only actually-testable code.
     args(
         "--reportDir", layout.buildDirectory.dir("reports/pitest").get().asFile.absolutePath,
-        "--targetClasses", "org.yuvViewer.*",
+        "--targetClasses", "org.yuvViewer.utils.*",
         "--excludedClasses", "*Test,*Tests",
         "--targetTests", "org.yuvViewer.*",
         "--sourceDirs", "src/main/java",
         "--outputFormats", "HTML,XML",
-        "--timestampedReports", "false"
+        "--timestampedReports", "false",
+        "--verbose", "false"
     )
 }
 kotlin {

@@ -19,6 +19,8 @@ class ExtensionUtilsTest {
         assertThat(ExtensionUtils.approveSelection(File("test.SQCIF"))).isTrue()
         assertThat(ExtensionUtils.approveSelection(File("test.CIF"))).isTrue()
         assertThat(ExtensionUtils.approveSelection(File("test.txt"))).isFalse()
+        // file without extension → false (covers the null-extension branch)
+        assertThat(ExtensionUtils.approveSelection(File("noextension"))).isFalse()
     }
     @Test
     fun testGetDimension() {
@@ -44,6 +46,14 @@ class ExtensionUtilsTest {
         val file = tempDir.resolve("test.yuv").toFile()
         val dir = ExtensionUtils.getDirectoryPath(file)
         assertThat(dir.absolutePath).isEqualTo(tempDir.toFile().absolutePath)
+    }
+
+    @Test
+    fun testGetDirectoryPathNoParent() {
+        // File with no parent path → should return "." (covers the null-parent branch)
+        val file = File("test.yuv")
+        val dir = ExtensionUtils.getDirectoryPath(file)
+        assertThat(dir.path).isEqualTo(".")
     }
     @Test
     fun testGetFilesInDirectory(@TempDir tempDir: Path) {
