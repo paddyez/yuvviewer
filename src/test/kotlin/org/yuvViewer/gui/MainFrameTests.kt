@@ -59,7 +59,7 @@ class MainFrameTests {
         assertThat(controlFrame).isNotNull
         val buttons = findComponents(controlFrame!!.contentPane, JButton::class.java)
         val buttonTooltips = buttons.map { it.toolTipText }
-        assertThat(buttonTooltips).contains("step one frame back", "play", "step one frame foreward", "plause", "rewind")
+        assertThat(buttonTooltips).contains("step one frame back", "play", "step one frame forward", "pause", "rewind")
     }
     @Test
     fun testAboutMenuAction() {

@@ -70,7 +70,7 @@ public class MainFrame extends JFrame implements ActionListener {
             true);
     private final JButton jButtonStepBack = new JButton("||<");
     private final JButton jButtonPlay = new JButton(">");
-    private final JButton jButtonStepForeward = new JButton(">||");
+    private final JButton jButtonStepForward = new JButton(">||");
     private final JButton jButtonPause = new JButton("||");
     private final JButton jButtonRewind = new JButton("<<");
     private final JLabel jFrameText = new JLabel("Frame #:");
@@ -198,21 +198,21 @@ public class MainFrame extends JFrame implements ActionListener {
         jButtonStepBack.setToolTipText("step one frame back");
         jButtonPlay.setActionCommand("Play");
         jButtonPlay.setToolTipText("play");
-        jButtonStepForeward.setActionCommand("StepForeward");
-        jButtonStepForeward.setToolTipText("step one frame foreward");
+        jButtonStepForward.setActionCommand("StepForward");
+        jButtonStepForward.setToolTipText("step one frame forward");
         jButtonPause.setActionCommand("Pause");
-        jButtonPause.setToolTipText("plause");
+        jButtonPause.setToolTipText("pause");
         jButtonRewind.setActionCommand("Rewind");
         jButtonRewind.setToolTipText("rewind");
         jButtonStepBack.addActionListener(this);
         jButtonPlay.addActionListener(this);
-        jButtonStepForeward.addActionListener(this);
+        jButtonStepForward.addActionListener(this);
         jButtonPause.addActionListener(this);
         jButtonRewind.addActionListener(this);
         jInternalFrame.getContentPane().add(jButtonRewind);
         jInternalFrame.getContentPane().add(jButtonStepBack);
         jInternalFrame.getContentPane().add(jButtonPlay);
-        jInternalFrame.getContentPane().add(jButtonStepForeward);
+        jInternalFrame.getContentPane().add(jButtonStepForward);
         jInternalFrame.getContentPane().add(jButtonPause);
         jInternalFrame.getContentPane().add(jFrameText);
         jInternalFrame.getContentPane().add(frameText);
@@ -391,7 +391,7 @@ public class MainFrame extends JFrame implements ActionListener {
                     startPlay();
                 }
                 break;
-            case "StepForeward":
+            case "StepForward":
                 if (!yuvViewer.readData()) {
                     yuvViewer.fillColors();
                     yuvViewer.repaint();
