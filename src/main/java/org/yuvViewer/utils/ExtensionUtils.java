@@ -1,8 +1,6 @@
 package org.yuvViewer.utils;
-
 import java.io.File;
 import java.awt.Dimension;
-
 /**
  * <p>Provides methods</p>
  *
@@ -12,7 +10,6 @@ import java.awt.Dimension;
 public class ExtensionUtils implements YUVDeclaration {
     private ExtensionUtils() {
     }
-
     /**
      * @param file the chosen file
      * @return the file extention as String
@@ -21,13 +18,11 @@ public class ExtensionUtils implements YUVDeclaration {
         String ext = null;
         String s = file.getName();
         int i = s.lastIndexOf('.');
-
         if (i > 0 && i < s.length() - 1) {
             ext = s.substring(i + 1).toLowerCase();
         }
         return ext;
     }
-
     /**
      * @param file the chosen file
      * @return True if the chosen file extension is a *.yuv file
@@ -36,7 +31,6 @@ public class ExtensionUtils implements YUVDeclaration {
         String ext = null;
         String s = file.getName();
         int i = s.lastIndexOf('.');
-
         if (i > 0 && i < s.length() - 1) {
             ext = s.substring(i + 1).toLowerCase();
         }
@@ -55,12 +49,10 @@ public class ExtensionUtils implements YUVDeclaration {
             return true;
         } else return ext.equals("yuv");
 	}
-
     public static Dimension getDimension(File file) {
         String ext = null;
         String s = file.getName();
         int i = s.lastIndexOf('.');
-
         if (i > 0 && i < s.length() - 1) {
             ext = s.substring(i + 1).toLowerCase();
         }
@@ -80,7 +72,6 @@ public class ExtensionUtils implements YUVDeclaration {
         }
         return null;
     }
-
     /**
      * @param file the chosen File
      * @return filename
@@ -90,11 +81,10 @@ public class ExtensionUtils implements YUVDeclaration {
         String s = file.getName();
         int i = s.lastIndexOf('.');
         if (i > 0 && i < s.length() - 1) {
-            name = s.substring(0, file.getName().length() - 4) + ".yuv";
+            name = s.substring(0, i) + ".yuv";
         }
         return name;
     }
-
     /**
      * @param file the chosen File
      * @return The basename.
@@ -104,21 +94,19 @@ public class ExtensionUtils implements YUVDeclaration {
         String pathName = file.getPath();
         int i = pathName.lastIndexOf('.');
         if (i > 0 && i < pathName.length() - 1) {
-            baseName = pathName.substring(0, (pathName.length() - 4));
+            baseName = pathName.substring(0, i);
         }
         return baseName;
     }
-
     public static File getDirectoryPath(File f) {
-        String strDir = f.getPath();
-        strDir = strDir.substring(0, strDir.lastIndexOf(File.separator));
-        return new File(strDir);
-
+        File parent = f.getParentFile();
+        if (parent != null) {
+            return parent;
+        }
+        return new File(".");
     }
-
     public static File[] getFilesInDirectory(File f) {
         File dirFile = ExtensionUtils.getDirectoryPath(f);//new File(strDir);
         return dirFile.listFiles();
     }
-
 }

@@ -55,6 +55,7 @@ tasks.register<JavaExec>("pitest") {
     args(
         "--reportDir", layout.buildDirectory.dir("reports/pitest").get().asFile.absolutePath,
         "--targetClasses", "org.yuvViewer.*",
+        "--excludedClasses", "*Test,*Tests",
         "--targetTests", "org.yuvViewer.*",
         "--sourceDirs", "src/main/java",
         "--outputFormats", "HTML,XML",

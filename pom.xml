@@ -77,6 +77,10 @@
                     <targetClasses>
                         <param>org.yuvViewer.*</param>
                     </targetClasses>
+                    <excludedClasses>
+                        <param>*Test</param>
+                        <param>*Tests</param>
+                    </excludedClasses>
                     <targetTests>
                         <param>org.yuvViewer.*</param>
                     </targetTests>
