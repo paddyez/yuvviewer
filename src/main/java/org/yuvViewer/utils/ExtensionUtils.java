@@ -1,6 +1,6 @@
 package org.yuvViewer.utils;
-import java.io.File;
 import java.awt.Dimension;
+import java.io.File;
 /**
  * <p>Provides methods</p>
  *
@@ -8,70 +8,53 @@ import java.awt.Dimension;
  * @version 1.0
  */
 public class ExtensionUtils implements YUVDeclaration {
+    private static final java.util.Map<String, Dimension> EXTENSION_DIMENSIONS;
+    static {
+        EXTENSION_DIMENSIONS = new java.util.HashMap<>();
+        EXTENSION_DIMENSIONS.put(YUVNames.SQCIF.name().toLowerCase(), SQCIF_DIMENSION);
+        EXTENSION_DIMENSIONS.put(YUVNames.QCIF.name().toLowerCase(),  QCIF_DIMENSION);
+        EXTENSION_DIMENSIONS.put(YUVNames.SIF.name().toLowerCase(),   SIF_DIMENSION);
+        EXTENSION_DIMENSIONS.put(YUVNames.CIF.name().toLowerCase(),   CIF_DIMENSION);
+        EXTENSION_DIMENSIONS.put(YUVNames.CIF4.name().toLowerCase(),  CIF4_DIMENSION);
+        EXTENSION_DIMENSIONS.put(YUVNames.TV.name().toLowerCase(),    TV_DIMENSION);
+    }
+
     private ExtensionUtils() {
     }
+
     /**
      * @param file the chosen file
-     * @return the file extention as String
+     * @return the file extension as String, or null if none found
      */
     public static String getExtension(File file) {
-        String ext = null;
         String s = file.getName();
         int i = s.lastIndexOf('.');
         if (i > 0 && i < s.length() - 1) {
-            ext = s.substring(i + 1).toLowerCase();
-        }
-        return ext;
-    }
-    /**
-     * @param file the chosen file
-     * @return True if the chosen file extension is a *.yuv file
-     */
-    public static boolean approveSelection(File file) {
-        String ext = null;
-        String s = file.getName();
-        int i = s.lastIndexOf('.');
-        if (i > 0 && i < s.length() - 1) {
-            ext = s.substring(i + 1).toLowerCase();
-        }
-		assert ext != null;
-		if (ext.equalsIgnoreCase(YUVNames.SQCIF.name())) {
-            return true;
-        } else if (ext.equalsIgnoreCase(YUVNames.QCIF.name())) {
-            return true;
-        } else if (ext.equalsIgnoreCase(YUVNames.SIF.name())) {
-            return true;
-        } else if (ext.equalsIgnoreCase(YUVNames.CIF.name())) {
-            return true;
-        } else if (ext.equalsIgnoreCase(YUVNames.CIF4.name())) {
-            return true;
-        } else if (ext.equalsIgnoreCase(YUVNames.TV.name())) {
-            return true;
-        } else return ext.equals("yuv");
-	}
-    public static Dimension getDimension(File file) {
-        String ext = null;
-        String s = file.getName();
-        int i = s.lastIndexOf('.');
-        if (i > 0 && i < s.length() - 1) {
-            ext = s.substring(i + 1).toLowerCase();
-        }
-		assert ext != null;
-		if (ext.equalsIgnoreCase(YUVNames.SQCIF.name())) {
-            return SQCIF_DIMENSION;
-        } else if (ext.equalsIgnoreCase(YUVNames.QCIF.name())) {
-            return QCIF_DIMENSION;
-        } else if (ext.equalsIgnoreCase(YUVNames.SIF.name())) {
-            return SIF_DIMENSION;
-        } else if (ext.equalsIgnoreCase(YUVNames.CIF.name())) {
-            return CIF_DIMENSION;
-        } else if (ext.equalsIgnoreCase(YUVNames.CIF4.name())) {
-            return CIF4_DIMENSION;
-        } else if (ext.equalsIgnoreCase(YUVNames.TV.name())) {
-            return TV_DIMENSION;
+            return s.substring(i + 1).toLowerCase();
         }
         return null;
     }
+
+    /**
+     * @param file the chosen file
+     * @return True if the chosen file extension is a known YUV format
+     */
+    public static boolean approveSelection(File file) {
+        String ext = getExtension(file);
+        if (ext == null) return false;
+        return ext.equals("yuv") || EXTENSION_DIMENSIONS.containsKey(ext);
+    }
+
+    /**
+     * @param file the chosen file
+     * @return the Dimension for the given file extension, or null for custom/yuv
+     */
+    public static Dimension getDimension(File file) {
+        String ext = getExtension(file);
+        if (ext == null) return null;
+        return EXTENSION_DIMENSIONS.get(ext);
+    }
+
     /**
      * @param file the chosen File
      * @return filename

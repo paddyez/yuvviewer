@@ -176,6 +176,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         yData = new byte[yLength];
         uData = new byte[uvLength];
         vData = new byte[uvLength];
+        if (randomAccessFile != null) {
+            try {
+                randomAccessFile.close();
+            } catch (IOException ioe) {
+                System.err.println("Failed to close file: " + ioe.getMessage());
+            }
+            randomAccessFile = null;
+        }
         try {
             randomAccessFile = new RandomAccessFile(yuvFile, "r");
         } catch (FileNotFoundException | SecurityException fnfe) {
@@ -388,6 +396,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     @Override
     public void dispose() {
         super.dispose();
+        if (randomAccessFile != null) {
+            try {
+                randomAccessFile.close();
+            } catch (IOException ioe) {
+                System.err.println("Failed to close file: " + ioe.getMessage());
+            }
+            randomAccessFile = null;
+        }
         rgbImage = null;
         scaledRGBImage = null;
         bufferedImage = null;
