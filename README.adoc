@@ -64,6 +64,7 @@ java -jar build/libs/yuvViewer-1.0-SNAPSHOT.jar
 Informationen zum YUV-Format finden Sie auf link:https://en.wikipedia.org/wiki/YUV[Wikipedia].
 
 Beispiel-YUV-Dateien:
+
 * link:http://trace.eas.asu.edu/yuv/[ASU YUV Video Sequences]
 * link:https://stackoverflow.com/questions/3644501/where-can-i-obtain-a-raw-yuv-file[StackOverflow: Raw YUV files]
 
