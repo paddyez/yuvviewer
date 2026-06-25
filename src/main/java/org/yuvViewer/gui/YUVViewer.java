@@ -14,10 +14,58 @@ import java.io.RandomAccessFile;
 
 public class YUVViewer extends Window implements MouseMotionListener, MouseListener {
     static {
+        String libName = "calc";
         try {
-            System.loadLibrary("calc");
+            System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError ule) {
-            System.err.println(ule.getMessage());
+            String mappedName = System.mapLibraryName(libName);
+            boolean loaded = false;
+            
+            // Define search paths
+            java.util.List<String> searchPaths = new java.util.ArrayList<>();
+            searchPaths.add(mappedName); // Current directory
+            searchPaths.add("target" + File.separator + mappedName); // Maven target
+            searchPaths.add("build" + File.separator + "libs" + File.separator + mappedName); // Gradle build
+            
+            try {
+                java.security.CodeSource cs = YUVViewer.class.getProtectionDomain().getCodeSource();
+                if (cs != null && cs.getLocation() != null) {
+                    File jarFile = new File(cs.getLocation().getPath());
+                    String jarDir = jarFile.getParent();
+                    if (jarDir != null) {
+                        searchPaths.add(jarDir + File.separator + mappedName);
+                    }
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+            
+            StringBuilder errorLog = new StringBuilder();
+            errorLog.append("Could not load library '").append(libName).append("' from java.library.path.\n");
+            errorLog.append("Details: ").append(ule.getMessage()).append("\n");
+            errorLog.append("Attempting fallback search paths:\n");
+            
+            for (String path : searchPaths) {
+                File libFile = new File(path);
+                errorLog.append("  Trying: ").append(libFile.getAbsolutePath());
+                if (libFile.exists()) {
+                    try {
+                        System.load(libFile.getAbsolutePath());
+                        errorLog.append(" -> SUCCESS\n");
+                        loaded = true;
+                        break;
+                    } catch (UnsatisfiedLinkError e) {
+                        errorLog.append(" -> FAILED: ").append(e.getMessage()).append("\n");
+                    }
+                } else {
+                    errorLog.append(" -> NOT FOUND\n");
+                }
+            }
+            
+            if (!loaded) {
+                System.err.println(errorLog.toString());
+                throw new UnsatisfiedLinkError("Native library 'calc' could not be loaded from any of the searched locations.");
+            }
         }
     }
 

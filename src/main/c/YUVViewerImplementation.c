@@ -11,7 +11,7 @@ JNIEXPORT jintArray
 
 JNICALL
 Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
-                                                       jobject obj,
+                                                       jclass clazz,
                                                        jboolean showY,
                                                        jboolean showU,
                                                        jboolean showV,
@@ -26,96 +26,78 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
     jbyte *cuData = (*env)->GetByteArrayElements(env, uData, 0);
     jbyte *cvData = (*env)->GetByteArrayElements(env, vData, 0);
     int i, j;
-    int red, green, blue;
 
-    for (i = 0; i < height; i += 2) {
-        for (j = 0; j < width; j += 2) {
-            int pos = j + width * i;
-            int cy = cyData[pos] & 255;
-            int cb = cuData[j / 2 + i / 4 * width] & 255;
-            int cr = cvData[j / 2 + i / 4 * width] & 255;
-            cy = showY ? cy : 0;
-            cb = showU ? cb : 0;
-            cr = showV ? cr : 0;
-            cy -= 16;
-            cb -= 128;
-            cr -= 128;
-            red = (298 * cy + 409 * cr + 128) >> 8;
-            green = (298 * cy - 100 * cb - 208 * cr + 128) >> 8;
-            blue = (298 * cy + 516 * cb + 128) >> 8;
+    if (showY && showU && showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int cb = (cuData[j / 2 + i / 4 * width] & 255) - 128;
+                int cr = (cvData[j / 2 + i / 4 * width] & 255) - 128;
+                int r_c = 409 * cr + 128;
+                int g_c = -100 * cb - 208 * cr + 128;
+                int b_c = 516 * cb + 128;
 
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
+                for (int k = 0; k < 4; k++) {
+                    int p = p_idx[k];
+                    int cy = 298 * ((cyData[p] & 255) - 16);
+                    int red = (cy + r_c) >> 8;
+                    int green = (cy + g_c) >> 8;
+                    int blue = (cy + b_c) >> 8;
+                    rgbInt[p] = (blue > 255 ? 255 : blue < 0 ? 0 : blue) |
+                                ((green > 255 ? 255 : green < 0 ? 0 : green) << 8) |
+                                ((red > 255 ? 255 : red < 0 ? 0 : red) << 16);
+                }
             }
-            rgbInt[pos] = blue | (green << 8) | (red << 16);
-
-            cy = cyData[pos + 1] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (298 * cy + 409 * cr + 128) >> 8;
-            green = (298 * cy - 100 * cb - 208 * cr + 128) >> 8;
-            blue = (298 * cy + 516 * cb + 128) >> 8;
-
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+        }
+    } else if (showY && !showU && !showV) {
+        for (i = 0; i < height * width; i++) {
+            int y = cyData[i] & 255;
+            rgbInt[i] = y | (y << 8) | (y << 16);
+        }
+    } else if (!showY && showU && !showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int u = cuData[j / 2 + i / 4 * width] & 255;
+                int val = u | (u << 8) | (u << 16);
+                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = val;
             }
-            rgbInt[pos + 1] = blue | (green << 8) | (red << 16);
-
-            cy = cyData[pos + width] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (298 * cy + 409 * cr + 128) >> 8;
-            green = (298 * cy - 100 * cb - 208 * cr + 128) >> 8;
-            blue = (298 * cy + 516 * cb + 128) >> 8;
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+        }
+    } else if (!showY && !showU && showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int v = cvData[j / 2 + i / 4 * width] & 255;
+                int val = v | (v << 8) | (v << 16);
+                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = val;
             }
-            rgbInt[pos + width] = blue | (green << 8) | (red << 16);
+        }
+    } else {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int cb = (showU ? (cuData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+                int cr = (showV ? (cvData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+                int r_c = 409 * cr + 128;
+                int g_c = -100 * cb - 208 * cr + 128;
+                int b_c = 516 * cb + 128;
 
-            cy = cyData[pos + width + 1] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (298 * cy + 409 * cr + 128) >> 8;
-            green = (298 * cy - 100 * cb - 208 * cr + 128) >> 8;
-            blue = (298 * cy + 516 * cb + 128) >> 8;
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
+                for (int k = 0; k < 4; k++) {
+                    int p = p_idx[k];
+                    int cy = 298 * ((showY ? (cyData[p] & 255) : 0) - 16);
+                    int red = (cy + r_c) >> 8;
+                    int green = (cy + g_c) >> 8;
+                    int blue = (cy + b_c) >> 8;
+                    rgbInt[p] = (blue > 255 ? 255 : blue < 0 ? 0 : blue) |
+                                ((green > 255 ? 255 : green < 0 ? 0 : green) << 8) |
+                                ((red > 255 ? 255 : red < 0 ? 0 : red) << 16);
+                }
             }
-            rgbInt[pos + width + 1] = blue | (green << 8) | (red << 16);
         }
     }
+
     (*env)->ReleaseByteArrayElements(env, yData, cyData, 0);
     (*env)->ReleaseByteArrayElements(env, uData, cuData, 0);
     (*env)->ReleaseByteArrayElements(env, vData, cvData, 0);
@@ -127,7 +109,7 @@ JNIEXPORT jintArray
 
 JNICALL
 Java_org_yuvViewer_gui_YUVViewer_calculateFastColoredRGBImage(JNIEnv *env,
-                                                              jobject obj,
+                                                              jclass clazz,
                                                               jint width,
                                                               jint height,
                                                               jbyteArray yData,
@@ -212,7 +194,7 @@ JNIEXPORT jintArray
 
 JNICALL
 Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
-                                                   jobject obj,
+                                                   jclass clazz,
                                                    jboolean showY,
                                                    jboolean showU,
                                                    jboolean showV,
@@ -227,92 +209,75 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
     jbyte *cuData = (*env)->GetByteArrayElements(env, uData, 0);
     jbyte *cvData = (*env)->GetByteArrayElements(env, vData, 0);
     int i, j;
-    int red, green, blue;
 
-    for (i = 0; i < height; i += 2) {
-        for (j = 0; j < width; j += 2) {
-            int pos = j + width * i;
-            int cy = cyData[pos] & 255;
-            int cb = cuData[j / 2 + i / 4 * width] & 255;
-            int cr = cvData[j / 2 + i / 4 * width] & 255;
-            cy = showY ? cy : 0;
-            cb = showU ? cb : 0;
-            cr = showV ? cr : 0;
-            cy -= 16;
-            cb -= 128;
-            cr -= 128;
-            red = (int) (1.164383 * cy + 1.596027 * cr);
-            green = (int) (1.164383 * cy - 0.391762 * cb - 0.812968 * cr);
-            blue = (int) (1.164383 * cy + 2.017232 * cb);
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
-            }
-            rgbInt[pos] = blue | (green << 8) | (red << 16);
+    if (showY && showU && showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int cb = (cuData[j / 2 + i / 4 * width] & 255) - 128;
+                int cr = (cvData[j / 2 + i / 4 * width] & 255) - 128;
+                double r_c = 1.596027 * cr;
+                double g_c = -0.391762 * cb - 0.812968 * cr;
+                double b_c = 2.017232 * cb;
 
-            cy = cyData[pos + 1] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (int) (1.164383 * cy + 1.596027 * cr);
-            green = (int) (1.164383 * cy - 0.391762 * cb - 0.812968 * cr);
-            blue = (int) (1.164383 * cy + 2.017232 * cb);
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
+                for (int k = 0; k < 4; k++) {
+                    int p = p_idx[k];
+                    double cy = 1.164383 * ((cyData[p] & 255) - 16);
+                    int red = (int) (cy + r_c);
+                    int green = (int) (cy + g_c);
+                    int blue = (int) (cy + b_c);
+                    rgbInt[p] = (blue > 255 ? 255 : blue < 0 ? 0 : blue) |
+                                ((green > 255 ? 255 : green < 0 ? 0 : green) << 8) |
+                                ((red > 255 ? 255 : red < 0 ? 0 : red) << 16);
+                }
             }
-            rgbInt[pos + 1] = blue | (green << 8) | (red << 16);
+        }
+    } else if (showY && !showU && !showV) {
+        for (i = 0; i < height * width; i++) {
+            int y = cyData[i] & 255;
+            rgbInt[i] = y | (y << 8) | (y << 16);
+        }
+    } else if (!showY && showU && !showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int u = cuData[j / 2 + i / 4 * width] & 255;
+                int val = u | (u << 8) | (u << 16);
+                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = val;
+            }
+        }
+    } else if (!showY && !showU && showV) {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int v = cvData[j / 2 + i / 4 * width] & 255;
+                int val = v | (v << 8) | (v << 16);
+                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = val;
+            }
+        }
+    } else {
+        for (i = 0; i < height; i += 2) {
+            for (j = 0; j < width; j += 2) {
+                int pos = j + width * i;
+                int cb = (showU ? (cuData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+                int cr = (showV ? (cvData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+                double r_c = 1.596027 * cr;
+                double g_c = -0.391762 * cb - 0.812968 * cr;
+                double b_c = 2.017232 * cb;
 
-            cy = cyData[pos + width] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (int) (1.164383 * cy + 1.596027 * cr);
-            green = (int) (1.164383 * cy - 0.391762 * cb - 0.812968 * cr);
-            blue = (int) (1.164383 * cy + 2.017232 * cb);
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
+                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
+                for (int k = 0; k < 4; k++) {
+                    int p = p_idx[k];
+                    double cy = 1.164383 * ((showY ? (cyData[p] & 255) : 0) - 16);
+                    int red = (int) (cy + r_c);
+                    int green = (int) (cy + g_c);
+                    int blue = (int) (cy + b_c);
+                    rgbInt[p] = (blue > 255 ? 255 : blue < 0 ? 0 : blue) |
+                                ((green > 255 ? 255 : green < 0 ? 0 : green) << 8) |
+                                ((red > 255 ? 255 : red < 0 ? 0 : red) << 16);
+                }
             }
-            rgbInt[pos + width] = blue | (green << 8) | (red << 16);
-
-            cy = cyData[pos + width + 1] & 255;
-            cy = showY ? cy : 0;
-            cy -= 16;
-            red = (int) (1.164383 * cy + 1.596027 * cr);
-            green = (int) (1.164383 * cy - 0.391762 * cb - 0.812968 * cr);
-            blue = (int) (1.164383 * cy + 2.017232 * cb);
-            //clipping
-            red = red > 255 ? 255 : red < 0 ? 0 : red;
-            green = green > 255 ? 255 : green < 0 ? 0 : green;
-            blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-            if (showY & !showU & !showV) {
-                red = green = blue = cy + 16;
-            } else if (!showY && showU & !showV) {
-                red = green = blue = cb + 128;
-            } else if (!showY & !showU && showV) {
-                red = green = blue = cr + 128;
-            }
-            rgbInt[pos + width + 1] = blue | (green << 8) | (red << 16);
         }
     }
 
@@ -330,7 +295,7 @@ JNIEXPORT jintArray
 
 JNICALL
 Java_org_yuvViewer_gui_YUVViewer_resizeRGBImage(JNIEnv *env,
-                                                jobject obj,
+                                                jclass clazz,
                                                 jint scale,
                                                 jint width,
                                                 jint height,
