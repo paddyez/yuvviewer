@@ -15,6 +15,7 @@ class YUVViewerTest {
     private var mainFrame: MainFrame? = null
     private var yuvViewer: YUVViewer? = null
     private var tempYuvFile: File? = null
+    private var createdTempFile = false
 
     @BeforeEach
     fun setUp() {
@@ -25,22 +26,24 @@ class YUVViewerTest {
         val sourceFile = File("test_176x144.yuv")
         if (sourceFile.exists()) {
             tempYuvFile = sourceFile
+            createdTempFile = false
         } else {
             // Create a dummy YUV file (176x144, 4:2:0)
             // Y: 176*144, U: 176*144/4, V: 176*144/4
             val size = 176 * 144 + (176 * 144 / 2)
             tempYuvFile = File.createTempFile("test", ".yuv")
             Files.write(tempYuvFile!!.toPath(), ByteArray(size))
+            createdTempFile = true
         }
 
-        yuvViewer = YUVViewer(mainFrame, tempYuvFile, Dimension(176, 144), YUVDeclaration.ccYUV)
+        yuvViewer = YUVViewer(mainFrame, tempYuvFile, Dimension(176, 144), YUVDeclaration.CC_YUV)
     }
 
     @AfterEach
     fun tearDown() {
         yuvViewer?.dispose()
         mainFrame?.dispose()
-        if (tempYuvFile?.name?.startsWith("test") == true) {
+        if (createdTempFile) {
             tempYuvFile?.delete()
         }
         Window.getWindows().forEach { it.dispose() }

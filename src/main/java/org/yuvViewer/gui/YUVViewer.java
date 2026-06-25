@@ -194,7 +194,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         }
         rgbImage = new int[size.width * size.height];
 
-        if (colorspace == YUVDeclaration.ccY) {
+        if (colorspace == YUVDeclaration.CC_Y) {
             setU(false);
             setV(false);
             frame.enableYUVCheckboxes(showY, showU, showV);
@@ -209,7 +209,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             l = m = 0;
 
             k = randomAccessFile.read(yData);
-            if (colorspace == YUVDeclaration.ccYUV) {
+            if (colorspace == YUVDeclaration.CC_YUV) {
                 l = randomAccessFile.read(uData);
                 m = randomAccessFile.read(vData);
             }
@@ -229,7 +229,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         frameNumber = Math.max(frameNumber, 1);
         frame.setFrameNumber(frameNumber);
         int dataLength;
-        if (colorspace == YUVDeclaration.ccYUV) {
+        if (colorspace == YUVDeclaration.CC_YUV) {
             dataLength = size.width * size.height + size.width * size.height / 2;
         } else {
             dataLength = size.width * size.height;
@@ -239,7 +239,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             l = m = 0;
             randomAccessFile.seek(dataLength * (frameNumber - 1));
             k = randomAccessFile.read(yData);
-            if (colorspace == YUVDeclaration.ccYUV) {
+            if (colorspace == YUVDeclaration.CC_YUV) {
                 l = randomAccessFile.read(uData);
                 m = randomAccessFile.read(vData);
             }
@@ -316,17 +316,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                     rgbImage
             );
         }
-
-        if (scale > 1) {
-            scaledRGBImage = YUVViewer.resizeRGBImage(scale,
-                    size.width,
-                    size.height,
-                    scaledRGBImage,
-                    rgbImage);
-            scaledImage.setRGB(0, 0, size.width * scale, size.height * scale, scaledRGBImage, 0, size.width * scale);
-        } else {
-            bufferedImage.setRGB(0, 0, size.width, size.height, rgbImage, 0, size.width);
-        }
+        applyRGBToImage();
     }
 
     /**
@@ -343,6 +333,10 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 vData,
                 rgbImage
         );
+        applyRGBToImage();
+    }
+
+    private void applyRGBToImage() {
         if (scale > 1) {
             scaledRGBImage = YUVViewer.resizeRGBImage(scale,
                     size.width,
@@ -358,20 +352,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     public void setScale(int s) {
         scale = s;
         setSize(new Dimension(size.width * scale, size.height * scale));
-        scaledRGBImage = null;
-        scaledImage = null;
-        scaledRGBImage = new int[size.width * scale * size.height * scale];
         if (scale > 1) {
-            scaledRGBImage = YUVViewer.resizeRGBImage(scale,
-                    size.width,
-                    size.height,
-                    scaledRGBImage,
-                    rgbImage);
+            scaledRGBImage = new int[size.width * scale * size.height * scale];
             scaledImage = new BufferedImage(size.width * scale, size.height * scale, BufferedImage.TYPE_INT_RGB);
-            scaledImage.setRGB(0, 0, size.width * scale, size.height * scale, scaledRGBImage, 0, size.width * scale);
         } else {
-            bufferedImage.setRGB(0, 0, size.width, size.height, rgbImage, 0, size.width);
+            scaledRGBImage = null;
+            scaledImage = null;
         }
+        applyRGBToImage();
         repaint();
     }
 

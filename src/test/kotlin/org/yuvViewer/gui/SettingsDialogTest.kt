@@ -56,7 +56,7 @@ class SettingsDialogTest {
         assertThat(okButton).isNotNull
         okButton!!.doClick()
 
-        assertThat(mainFrame?.yuvDimension).isEqualTo(YUVDeclaration.CIF_DIMENSION)
+        assertThat(mainFrame?.yuvDimension).isEqualTo(YUVDeclaration.YUVNames.CIF.getDimension())
     }
 
     @Test
@@ -94,7 +94,7 @@ class SettingsDialogTest {
         val okButton = findButtonByText(settingsDialog!!, "Ok")
         okButton!!.doClick()
 
-        assertThat(mainFrame?.colorSpace).isEqualTo(YUVDeclaration.ccY)
+        assertThat(mainFrame?.colorSpace).isEqualTo(YUVDeclaration.CC_Y)
     }
 
     @Test

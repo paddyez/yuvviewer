@@ -7,16 +7,16 @@ import java.io.File;
  * @author Patrick-Emil Zörner
  * @version 1.0
  */
-public class ExtensionUtils implements YUVDeclaration {
+public class ExtensionUtils {
     private static final java.util.Map<String, Dimension> EXTENSION_DIMENSIONS;
     static {
         EXTENSION_DIMENSIONS = new java.util.HashMap<>();
-        EXTENSION_DIMENSIONS.put(YUVNames.SQCIF.name().toLowerCase(), SQCIF_DIMENSION);
-        EXTENSION_DIMENSIONS.put(YUVNames.QCIF.name().toLowerCase(),  QCIF_DIMENSION);
-        EXTENSION_DIMENSIONS.put(YUVNames.SIF.name().toLowerCase(),   SIF_DIMENSION);
-        EXTENSION_DIMENSIONS.put(YUVNames.CIF.name().toLowerCase(),   CIF_DIMENSION);
-        EXTENSION_DIMENSIONS.put(YUVNames.CIF4.name().toLowerCase(),  CIF4_DIMENSION);
-        EXTENSION_DIMENSIONS.put(YUVNames.TV.name().toLowerCase(),    TV_DIMENSION);
+        for (YUVDeclaration.YUVNames name : YUVDeclaration.YUVNames.values()) {
+            Dimension dim = name.getDimension();
+            if (dim != null) {
+                EXTENSION_DIMENSIONS.put(name.name().toLowerCase(), dim);
+            }
+        }
     }
 
     private ExtensionUtils() {

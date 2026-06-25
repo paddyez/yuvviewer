@@ -22,12 +22,12 @@ class ExtensionUtilsTest {
     }
     @Test
     fun testGetDimension() {
-        assertThat(ExtensionUtils.getDimension(File("test.sqcif"))).isEqualTo(YUVDeclaration.SQCIF_DIMENSION)
-        assertThat(ExtensionUtils.getDimension(File("test.qcif"))).isEqualTo(YUVDeclaration.QCIF_DIMENSION)
-        assertThat(ExtensionUtils.getDimension(File("test.sif"))).isEqualTo(YUVDeclaration.SIF_DIMENSION)
-        assertThat(ExtensionUtils.getDimension(File("test.cif"))).isEqualTo(YUVDeclaration.CIF_DIMENSION)
-        assertThat(ExtensionUtils.getDimension(File("test.cif4"))).isEqualTo(YUVDeclaration.CIF4_DIMENSION)
-        assertThat(ExtensionUtils.getDimension(File("test.tv"))).isEqualTo(YUVDeclaration.TV_DIMENSION)
+        assertThat(ExtensionUtils.getDimension(File("test.sqcif"))).isEqualTo(YUVDeclaration.YUVNames.SQCIF.getDimension())
+        assertThat(ExtensionUtils.getDimension(File("test.qcif"))).isEqualTo(YUVDeclaration.YUVNames.QCIF.getDimension())
+        assertThat(ExtensionUtils.getDimension(File("test.sif"))).isEqualTo(YUVDeclaration.YUVNames.SIF.getDimension())
+        assertThat(ExtensionUtils.getDimension(File("test.cif"))).isEqualTo(YUVDeclaration.YUVNames.CIF.getDimension())
+        assertThat(ExtensionUtils.getDimension(File("test.cif4"))).isEqualTo(YUVDeclaration.YUVNames.CIF4.getDimension())
+        assertThat(ExtensionUtils.getDimension(File("test.tv"))).isEqualTo(YUVDeclaration.YUVNames.TV.getDimension())
         assertThat(ExtensionUtils.getDimension(File("test.yuv"))).isNull()
     }
     @Test
