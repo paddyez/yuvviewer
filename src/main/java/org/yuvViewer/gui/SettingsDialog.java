@@ -86,8 +86,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         customButton.setMnemonic(KeyEvent.VK_U);
         customButton.addActionListener(this);
         customPanel.setLayout(new FlowLayout());
-        xText.setEditable(false);
-        yText.setEditable(false);
+        makeEditable(false);
         customPanel.add(xLabel, null);
         customPanel.add(xText, null);
         customPanel.add(yLabel, null);
