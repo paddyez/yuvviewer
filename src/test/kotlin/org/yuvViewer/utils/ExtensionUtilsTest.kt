@@ -11,6 +11,8 @@ class ExtensionUtilsTest {
         assertThat(ExtensionUtils.getExtension(File("test.QCIF"))).isEqualTo("qcif")
         assertThat(ExtensionUtils.getExtension(File("noextension"))).isNull()
         assertThat(ExtensionUtils.getExtension(File(".hidden"))).isNull()
+        // Dot at end but no extension → null (kills boundary mutations on i < s.length()-1)
+        assertThat(ExtensionUtils.getExtension(File("test."))).isNull()
     }
     @Test
     fun testApproveSelection() {
@@ -36,10 +38,22 @@ class ExtensionUtilsTest {
     fun testGetNameEnding() {
         assertThat(ExtensionUtils.getNameEnding(File("movie.qcif"))).isEqualTo("movie.yuv")
         assertThat(ExtensionUtils.getNameEnding(File("test.yuv"))).isEqualTo("test.yuv")
+        // no extension → null
+        assertThat(ExtensionUtils.getNameEnding(File("noextension"))).isNull()
+        // dot at start (hidden file) → null
+        assertThat(ExtensionUtils.getNameEnding(File(".hidden"))).isNull()
+        // dot at end, empty extension → null
+        assertThat(ExtensionUtils.getNameEnding(File("test."))).isNull()
     }
     @Test
     fun testGetBaseName() {
         assertThat(ExtensionUtils.getBaseName(File("/path/to/test.yuv"))).isEqualTo("/path/to/test")
+        // no extension → null
+        assertThat(ExtensionUtils.getBaseName(File("noextension"))).isNull()
+        // dot at start (hidden file) → null
+        assertThat(ExtensionUtils.getBaseName(File(".hidden"))).isNull()
+        // dot at end, empty extension → null
+        assertThat(ExtensionUtils.getBaseName(File("/path/to/test."))).isNull()
     }
     @Test
     fun testGetDirectoryPath(@TempDir tempDir: Path) {
