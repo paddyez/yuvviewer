@@ -48,14 +48,14 @@ class SettingsDialogTest {
     fun testSelectDifferentPreset() {
         val cifButton = findComponentByName(settingsDialog!!, "CIF", JRadioButton::class.java)
         assertThat(cifButton).isNotNull
-        
+
         cifButton!!.doClick()
         assertThat(cifButton.isSelected).isTrue()
-        
+
         val okButton = findButtonByText(settingsDialog!!, "Ok")
         assertThat(okButton).isNotNull
         okButton!!.doClick()
-        
+
         assertThat(mainFrame?.yuvDimension).isEqualTo(YUVDeclaration.CIF_DIMENSION)
     }
 
@@ -64,21 +64,21 @@ class SettingsDialogTest {
         val customButton = findComponentByName(settingsDialog!!, "CUSTOM", JRadioButton::class.java)
         assertThat(customButton).isNotNull
         customButton!!.doClick()
-        
+
         val textFields = findComponents(settingsDialog!!, JTextField::class.java)
         // xText and yText are WholeNumberTextField which extend JTextField
         // We expect at least 2
         assertThat(textFields.size).isGreaterThanOrEqualTo(2)
-        
+
         val xText = textFields[0]
         val yText = textFields[1]
-        
+
         xText.text = "640"
         yText.text = "480"
-        
+
         val okButton = findButtonByText(settingsDialog!!, "Ok")
         okButton!!.doClick()
-        
+
         assertThat(mainFrame?.yuvDimension).isEqualTo(Dimension(640, 480))
     }
 
@@ -86,14 +86,14 @@ class SettingsDialogTest {
     fun testColorSpaceSelection() {
         val tabbedPane = findComponent(settingsDialog!!, JTabbedPane::class.java)
         tabbedPane?.selectedIndex = 1 // Switch to Color tab
-        
+
         val yOnlyButton = findAbstractButtonByText(settingsDialog!!, "Y-Only") as? JRadioButton
         assertThat(yOnlyButton).isNotNull
         yOnlyButton!!.doClick()
-        
+
         val okButton = findButtonByText(settingsDialog!!, "Ok")
         okButton!!.doClick()
-        
+
         assertThat(mainFrame?.colorSpace).isEqualTo(YUVDeclaration.ccY)
     }
 
@@ -101,7 +101,7 @@ class SettingsDialogTest {
     fun testCancelButton() {
         val cancelButton = findButtonByText(settingsDialog!!, "Cancel")
         assertThat(cancelButton).isNotNull
-        
+
         cancelButton!!.doClick()
         assertThat(settingsDialog?.isDisplayable).isFalse()
     }

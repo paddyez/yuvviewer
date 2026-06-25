@@ -20,7 +20,7 @@ class YUVViewerTest {
     fun setUp() {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "Skipping test in headless environment")
         mainFrame = MainFrame()
-        
+
         // Use the existing test file or create a dummy one
         val sourceFile = File("test_176x144.yuv")
         if (sourceFile.exists()) {
@@ -32,7 +32,7 @@ class YUVViewerTest {
             tempYuvFile = File.createTempFile("test", ".yuv")
             Files.write(tempYuvFile!!.toPath(), ByteArray(size))
         }
-        
+
         yuvViewer = YUVViewer(mainFrame, tempYuvFile, Dimension(176, 144), YUVDeclaration.ccYUV)
     }
 
@@ -56,19 +56,19 @@ class YUVViewerTest {
     @Test
     fun testScaleUpdate() {
         assertThat(yuvViewer?.size).isEqualTo(Dimension(176, 144))
-        
+
         SwingUtilities.invokeAndWait {
             yuvViewer?.setScale(2)
         }
-        
+
         // Check scale field via reflection to verify setScale was called and internal state updated
         val scaleField = YUVViewer::class.java.getDeclaredField("scale")
         scaleField.isAccessible = true
         val currentScale = scaleField.get(yuvViewer) as Int
         assertThat(currentScale).isEqualTo(2)
-        
-        // Note: We don't strictly check yuvViewer?.size here because in some 
-        // headless/CI environments, the window manager might ignore setSize() 
+
+        // Note: We don't strictly check yuvViewer?.size here because in some
+        // headless/CI environments, the window manager might ignore setSize()
         // calls on top-level Windows.
     }
 
@@ -79,7 +79,7 @@ class YUVViewerTest {
         // but we can at least ensure it doesn't crash.
         yuvViewer?.setU(false)
         yuvViewer?.setV(false)
-        
+
         yuvViewer?.setY(true)
         yuvViewer?.setU(true)
         yuvViewer?.setV(true)
@@ -95,7 +95,7 @@ class YUVViewerTest {
         val uData = ByteArray(width * height / 4)
         val vData = ByteArray(width * height / 4)
         val rgbImage = IntArray(width * height)
-        
+
         val result = YUVViewer.calculateRGBImage(true, true, true, width, height, yData, uData, vData, rgbImage)
         assertThat(result).isNotNull
         assertThat(result.size).isEqualTo(width * height)
@@ -109,11 +109,11 @@ class YUVViewerTest {
         val uData = ByteArray(width * height / 4)
         val vData = ByteArray(width * height / 4)
         val rgbImage = IntArray(width * height)
-        
+
         val result = YUVViewer.calculateFastRGBImage(true, true, true, width, height, yData, uData, vData, rgbImage)
         assertThat(result).isNotNull
         assertThat(result.size).isEqualTo(width * height)
-        
+
         val resultColored = YUVViewer.calculateFastColoredRGBImage(width, height, yData, uData, vData, rgbImage)
         assertThat(resultColored).isNotNull
         assertThat(resultColored.size).isEqualTo(width * height)

@@ -1,7 +1,6 @@
 package org.yuvViewer.gui
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import java.awt.Frame
 import java.awt.GraphicsEnvironment
 import java.awt.event.ActionEvent
 import javax.swing.*

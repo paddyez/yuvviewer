@@ -1,15 +1,31 @@
 package org.yuvViewer.gui;
 
-import org.yuvViewer.utils.WholeNumberTextField;
-import org.yuvViewer.utils.YUVDeclaration;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.border.TitledBorder;
+
+import org.yuvViewer.utils.WholeNumberTextField;
+import org.yuvViewer.utils.YUVDeclaration;
 
 public class SettingsDialog extends JDialog implements ActionListener, YUVDeclaration {
     MainFrame parent;
@@ -70,7 +86,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         }
     }
 
-    //private static int USR_MSG_PROJECT_EXISTS=0;    
+    //private static int USR_MSG_PROJECT_EXISTS=0;
     private boolean confirmMessage(String confirmMsg) {
         int ret;
         ret = JOptionPane.showConfirmDialog(this, confirmMsg, POPUP_CONFIRM_HEADLINE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);

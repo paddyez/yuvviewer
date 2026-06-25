@@ -1,8 +1,11 @@
 package org.yuvViewer.gui;
 
-import org.yuvViewer.utils.YUVDeclaration;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -12,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.yuvViewer.utils.YUVDeclaration;
+
 public class YUVViewer extends Window implements MouseMotionListener, MouseListener {
     static {
         String libName = "calc";
@@ -20,13 +25,13 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         } catch (UnsatisfiedLinkError ule) {
             String mappedName = System.mapLibraryName(libName);
             boolean loaded = false;
-            
+
             // Define search paths
             java.util.List<String> searchPaths = new java.util.ArrayList<>();
             searchPaths.add(mappedName); // Current directory
             searchPaths.add("target" + File.separator + mappedName); // Maven target
             searchPaths.add("build" + File.separator + "libs" + File.separator + mappedName); // Gradle build
-            
+
             try {
                 java.security.CodeSource cs = YUVViewer.class.getProtectionDomain().getCodeSource();
                 if (cs != null && cs.getLocation() != null) {
@@ -39,12 +44,12 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             } catch (Exception e) {
                 // ignore
             }
-            
+
             StringBuilder errorLog = new StringBuilder();
             errorLog.append("Could not load library '").append(libName).append("' from java.library.path.\n");
             errorLog.append("Details: ").append(ule.getMessage()).append("\n");
             errorLog.append("Attempting fallback search paths:\n");
-            
+
             for (String path : searchPaths) {
                 File libFile = new File(path);
                 errorLog.append("  Trying: ").append(libFile.getAbsolutePath());
@@ -61,7 +66,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                     errorLog.append(" -> NOT FOUND\n");
                 }
             }
-            
+
             if (!loaded) {
                 System.err.println(errorLog.toString());
                 throw new UnsatisfiedLinkError("Native library 'calc' could not be loaded from any of the searched locations.");
@@ -240,11 +245,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     }
 
     public class Play extends Thread {
-        boolean threadSuspended = false;
-        boolean endOfFile = false;
+        volatile boolean threadSuspended = false;
+        volatile boolean endOfFile = false;
 
-        public void setSuspended(boolean suspended) {
+        public synchronized void setSuspended(boolean suspended) {
             threadSuspended = suspended;
+            if (!suspended) {
+                notifyAll();
+            }
             fillColors();
             repaint();
         }
@@ -263,11 +271,9 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 fillFastColors();
                 repaint();
                 try {
-                    if (threadSuspended) {
-                        synchronized (this) {
-                            while (threadSuspended)
-                                wait();
-                        }
+                    synchronized (this) {
+                        while (threadSuspended)
+                            wait();
                     }
                 } catch (InterruptedException ie) {
                     System.err.println(ie.getMessage());
