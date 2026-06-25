@@ -26,6 +26,32 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
     private final JPanel ccPanel = new JPanel();
     private final GridBagLayout gBL = new GridBagLayout();
     private final GridBagConstraints gBC = new GridBagConstraints();
+
+    private final JLabel sqcifLabel = new JLabel("128x96");
+    private final JLabel qcifLabel = new JLabel("176x144");
+    private final JLabel sifLabel = new JLabel("352x240");
+    private final JLabel cifLabel = new JLabel("352x288");
+    private final JLabel cif4Label = new JLabel("704x576");
+    private final JLabel tvLabel = new JLabel("720x576");
+    private final JLabel hd1label = new JLabel("1280x720");
+    private final JLabel hd2Label = new JLabel("1920x1080");
+    private final JLabel xLabel = new JLabel("x:");
+    private final JLabel yLabel = new JLabel("y:");
+    private final JLabel yuvLabel = new JLabel("yuv");
+    private final JLabel yOnlyLabel = new JLabel("y-only");
+
+    private final JRadioButton sqcifButton = new JRadioButton(YUVNames.SQCIF.name());
+    private final JRadioButton qcifButton = new JRadioButton(YUVNames.QCIF.name());
+    private final JRadioButton sifButton = new JRadioButton(YUVNames.SIF.name());
+    private final JRadioButton cifButton = new JRadioButton(YUVNames.CIF.name());
+    private final JRadioButton cif4Button = new JRadioButton(YUVNames.CIF4.name());
+    private final JRadioButton tvButton = new JRadioButton(YUVNames.TV.name());
+    private final JRadioButton hd1Button = new JRadioButton(YUVNames.HD1.name());
+    private final JRadioButton hd2Button = new JRadioButton(YUVNames.HD2.name());
+    private final JRadioButton customButton = new JRadioButton(YUVNames.CUSTOM.name());
+    private final JRadioButton yuvButton = new JRadioButton("YUV");
+    private final JRadioButton yOnlyButton = new JRadioButton("Y-Only");
+
     private static final String ERR_VIDEOSIZE = "Check Video size";
     private static final String POPUP_CONFIRM_HEADLINE = "Info";
     private static final String POPUP_ERROR_HEADLINE = "Error";

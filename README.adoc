@@ -46,7 +46,7 @@ javac -sourcepath src/main/java -h src/main/c src/main/java/org/yuvViewer/gui/YU
 # Wählen Sie Ihr bevorzugtes Build-Tool:
 # Gradle:
 ./gradlew compileJava jar
-# Maven (ungetestet):
+# Maven:
 mvn verify
 # Ant (ungetestet):
 ant run

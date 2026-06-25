@@ -40,7 +40,7 @@ gui_src='src/main/java/org/yuvViewer/gui/YUVViewer.java'
 native_dir='src/main/c'
 libcalc='libcalc.so'
 
-options=("${flags[@]}" "-I${JAVA_HOME}/include" "-I${JAVA_HOME}/include/${OS_INCLUDE}" '-o' "${libcalc}")
+options=("${flags[@]}" "-I${JAVA_HOME}/include" "-I${JAVA_HOME}/include/${OS_INCLUDE}" '-o' "${cwd}/${native_dir}/${libcalc}")
 
 function create_native_library() {
     echo "Creating native library with JNI..." | tee -a "$logfile"

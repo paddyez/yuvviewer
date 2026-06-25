@@ -17,31 +17,6 @@ public interface YUVDeclaration {
         CUSTOM;
     }
 
-    JLabel sqcifLabel = new JLabel("128x96");
-    JLabel qcifLabel = new JLabel("176x144");
-    JLabel sifLabel = new JLabel("352x240");
-    JLabel cifLabel = new JLabel("352x288");
-    JLabel cif4Label = new JLabel("704x576");
-    JLabel tvLabel = new JLabel("720x576");
-    JLabel hd1label = new JLabel("1280x720");
-    JLabel hd2Label = new JLabel("1920x1080");
-    JLabel xLabel = new JLabel("x:");
-    JLabel yLabel = new JLabel("y:");
-    JLabel yuvLabel = new JLabel("yuv");
-    JLabel yOnlyLabel = new JLabel("y-only");
-
-    JRadioButton sqcifButton = new JRadioButton(YUVNames.SQCIF.name());
-    JRadioButton qcifButton = new JRadioButton(YUVNames.QCIF.name());
-    JRadioButton sifButton = new JRadioButton(YUVNames.SIF.name());
-    JRadioButton cifButton = new JRadioButton(YUVNames.CIF.name());
-    JRadioButton cif4Button = new JRadioButton(YUVNames.CIF4.name());
-    JRadioButton tvButton = new JRadioButton(YUVNames.TV.name());
-    JRadioButton hd1Button = new JRadioButton(YUVNames.HD1.name());
-    JRadioButton hd2Button = new JRadioButton(YUVNames.HD2.name());
-    JRadioButton customButton = new JRadioButton(YUVNames.CUSTOM.name());
-    JRadioButton yuvButton = new JRadioButton("YUV");
-    JRadioButton yOnlyButton = new JRadioButton("Y-Only");
-
     Dimension SQCIF_DIMENSION = new Dimension(128, 96);
     Dimension QCIF_DIMENSION = new Dimension(176, 144);
     Dimension SIF_DIMENSION = new Dimension(352, 240);

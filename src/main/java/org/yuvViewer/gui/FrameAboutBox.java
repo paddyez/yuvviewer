@@ -18,21 +18,21 @@ import java.net.URL;
  * @version 1.0
  */
 public class FrameAboutBox extends JDialog implements ActionListener {
-    private static final JPanel panel1 = new JPanel();
-    private static final JPanel panel2 = new JPanel();
-    private static final JPanel insetsPanel1 = new JPanel();
-    private static final JPanel insetsPanel2 = new JPanel();
-    private static final JPanel insetsPanel3 = new JPanel();
-    private static final JButton buttonOK = new JButton();
-    private static final JLabel imageLabel = new JLabel();
-    private static final JLabel label1 = new JLabel();
-    private static final JLabel label2 = new JLabel();
-    private static final JLabel label3 = new JLabel();
-    private static final JLabel label4 = new JLabel();
-    private static final BorderLayout borderLayout1 = new BorderLayout();
-    private static final BorderLayout borderLayout2 = new BorderLayout();
-    private static final FlowLayout flowLayout1 = new FlowLayout();
-    private static final GridLayout gridLayout1 = new GridLayout();
+    private final JPanel panel1 = new JPanel();
+    private final JPanel panel2 = new JPanel();
+    private final JPanel insetsPanel1 = new JPanel();
+    private final JPanel insetsPanel2 = new JPanel();
+    private final JPanel insetsPanel3 = new JPanel();
+    private final JButton buttonOK = new JButton();
+    private final JLabel imageLabel = new JLabel();
+    private final JLabel label1 = new JLabel();
+    private final JLabel label2 = new JLabel();
+    private final JLabel label3 = new JLabel();
+    private final JLabel label4 = new JLabel();
+    private final BorderLayout borderLayout1 = new BorderLayout();
+    private final BorderLayout borderLayout2 = new BorderLayout();
+    private final FlowLayout flowLayout1 = new FlowLayout();
+    private final GridLayout gridLayout1 = new GridLayout();
     private static final String PRODUCT = "YUV Viewer";
     private static final String VERSION = "1.0";
     private static final String COPYRIGHT = "Copyright © 2002";

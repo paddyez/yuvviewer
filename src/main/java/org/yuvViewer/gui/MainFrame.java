@@ -53,8 +53,8 @@ public class MainFrame extends JFrame implements ActionListener {
 
     private YUVViewer yuvViewer = null;
     private File yuvFile;
-    private Dimension yuvDimension;
-    private int colorSpace;
+    Dimension yuvDimension;
+    int colorSpace;
 
     transient Play play;
 
