@@ -35,7 +35,7 @@ esac
 # -fPIC: Position Independent Code (erforderlich für Shared Libraries auf vielen Architekturen)
 # -O3: Hohe Optimierungsstufe
 # -flto: Link Time Optimization
-flags=('-shared' '-fPIC' '-std=c17' '-Wall' '-Wextra' '-pedantic' '-O3' '-Wconversion' '-DNDEBUG' '-flto' '-lm')
+flags=('-shared' '-fPIC' '-std=c17' '-Wall' '-Wextra' '-pedantic' '-O3' '-Wconversion' '-DNDEBUG' '-flto' '-lm' '-msse4.1')
 gui_src='src/main/java/org/yuvViewer/gui/YUVViewer.java'
 native_dir='src/main/c'
 libcalc='libcalc.so'
@@ -69,10 +69,10 @@ function create_native_library() {
     fi
 
     # Bibliothek verteilen
+    echo "  Distributing ${libcalc} to build locations..." | tee -a "$logfile"
     if [ -n "${LD_LIBRARY_PATH}" ] && [ -d "${LD_LIBRARY_PATH}" ]; then
-        echo "  Installing to ${LD_LIBRARY_PATH} (may require sudo)..." | tee -a "$logfile"
-        # Wir versuchen es, aber scheitern nicht hart, wenn sudo fehlschlägt
-        sudo mv "${libcalc}" "${LD_LIBRARY_PATH}/" || echo "Warning: Could not copy to LD_LIBRARY_PATH" | tee -a "$logfile"
+        echo "  Installing ${cwd}/${native_dir}/${libcalc} to ${LD_LIBRARY_PATH}..." | tee -a "$logfile"
+        sudo mv "${cwd}/${native_dir}/${libcalc}" "${LD_LIBRARY_PATH}/"
     fi
 
     popd > /dev/null
