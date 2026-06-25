@@ -1,0 +1,86 @@
+= YUV Viewer
+:toc:
+:icons: font
+
+Ein YUV-Datei-Viewer für Ubuntu GNU/Linux (getestet mit OpenJDK 14/26, Bash und Clang/GCC).
+
+== Voraussetzungen
+
+* Java Development Kit (JDK 14 oder neuer) und $JAVA_HOME ist gesetzt.
+* C-Compiler (Clang oder GCC)
+* Build-Tool (Gradle, Maven oder Ant)
+
+Für die GUI unter Linux wird ggf. `libcanberra` benötigt:
+[source,bash]
+----
+sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+----
+
+== Umgebung einrichten
+
+Stellen Sie sicher, dass `LD_LIBRARY_PATH` den Pfad zu Ihren Bibliotheken enthält (z. B. `/usr/local/lib/`).
+
+[source,bash]
+----
+export LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
+----
+
+== Bauen und Ausführen
+
+=== Automatisierter Build (Empfohlen)
+
+Das `build.sh`-Skript übernimmt sowohl die native als auch die Java-Kompilierung und das Aufräumen der Build-Artefakte:
+
+[source,bash]
+----
+./build.sh
+./build.sh clean
+----
+
+=== Manueller Build
+
+[source,bash]
+----
+# JNI-Header generieren und Java-Klassen kompilieren
+javac -sourcepath src/main/java -h src/main/c src/main/java/org/yuvViewer/gui/YUVViewer.java
+# Wählen Sie Ihr bevorzugtes Build-Tool:
+# Gradle:
+./gradlew compileJava jar
+# Maven (ungetestet):
+mvn verify
+# Ant (ungetestet):
+ant run
+# Native Bibliothek kompilieren
+cd src/main/c
+gcc -shared -fPIC -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc.so YUVViewerImplementation.c
+# In ein Verzeichnis im LD_LIBRARY_PATH verschieben
+mv libcalc.so /usr/local/lib/
+# AUsführen
+java -jar build/libs/yuvViewer-1.0-SNAPSHOT.jar
+----
+
+== YUV-Dateien
+
+Informationen zum YUV-Format finden Sie auf link:https://en.wikipedia.org/wiki/YUV[Wikipedia].
+
+Beispiel-YUV-Dateien:
+* link:http://trace.eas.asu.edu/yuv/[ASU YUV Video Sequences]
+* link:https://stackoverflow.com/questions/3644501/where-can-i-obtain-a-raw-yuv-file[StackOverflow: Raw YUV files]
+
+Das Projekt enthält die Testdatei `test_176x144.yuv` (YUV 4:2:0). Beim Öffnen sollten vier Farben erscheinen: Grün (oben links), Cyan (oben rechts), Orange (unten links) und Pink (unten rechts).
+
+== Entwicklung
+
+=== Sonarqube
+[source,bash]
+----
+docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
+./gradlew sonarqube -Dsonar.projectKey=yuvViewer -Dsonar.host.url=http://localhost:9000 -Dsonar.login=ce251f3c90c71c366599c5c01513e564fead6d39
+----
+
+== Legacy-Plattformen (Veraltet)
+
+Die folgenden Informationen sind über 5 Jahre alt und dienen nur als Referenz:
+
+* *Mac OS X:* Erfordert spezifische GCC-Flags (siehe `buildMac`).
+* *Windows:* Benötigt Cygwin oder MinGW. Build-Skripte: `buildWinBcc.bat` oder `buildWinGcc.bat`.
