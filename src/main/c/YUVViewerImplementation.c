@@ -1,40 +1,8 @@
 #include <jni.h>
-#include <smmintrin.h>
 #include "org_yuvViewer_gui_YUVViewer.h"
 
 #define CLIP(x) ((x) > 255 ? 255 : ((x) < 0 ? 0 : (x)))
 #define PACK_RGB(r, g, b) (CLIP(b) | (CLIP(g) << 8) | (CLIP(r) << 16))
-
-static inline void yuv_to_rgb_sse_8px(const jbyte *pY, __m128i u16, __m128i v16, jint *pRGB) {
-    __m128i zero = _mm_setzero_si128();
-    __m128i v128 = _mm_set1_epi16(128);
-    __m128i v16_16 = _mm_set1_epi16(16);
-    __m128i v298 = _mm_set1_epi16(298);
-    __m128i v409 = _mm_set1_epi16(409);
-    __m128i v100 = _mm_set1_epi16(-100);
-    __m128i v208 = _mm_set1_epi16(-208);
-    __m128i v516 = _mm_set1_epi16(516);
-
-    __m128i y_raw = _mm_loadl_epi64((const __m128i *) pY);
-    __m128i y16 = _mm_mullo_epi16(_mm_sub_epi16(_mm_unpacklo_epi8(y_raw, zero), v16_16), v298);
-
-    __m128i r16 = _mm_srai_epi16(_mm_add_epi16(y16, _mm_add_epi16(_mm_mullo_epi16(v16, v409), v128)), 8);
-    __m128i g16 = _mm_srai_epi16(_mm_add_epi16(y16, _mm_add_epi16(_mm_add_epi16(_mm_mullo_epi16(u16, v100), _mm_mullo_epi16(v16, v208)), v128)), 8);
-    __m128i b16 = _mm_srai_epi16(_mm_add_epi16(y16, _mm_add_epi16(_mm_mullo_epi16(u16, v516), v128)), 8);
-
-    __m128i r8 = _mm_packus_epi16(r16, zero);
-    __m128i g8 = _mm_packus_epi16(g16, zero);
-    __m128i b8 = _mm_packus_epi16(b16, zero);
-
-    __m128i bg = _mm_unpacklo_epi8(b8, g8);
-    __m128i rz = _mm_unpacklo_epi8(r8, zero);
-
-    __m128i bgrz_lo = _mm_unpacklo_epi16(bg, rz);
-    __m128i bgrz_hi = _mm_unpackhi_epi16(bg, rz);
-
-    _mm_storeu_si128((__m128i *) pRGB, bgrz_lo);
-    _mm_storeu_si128((__m128i *) (pRGB + 4), bgrz_hi);
-}
 
 /**
  * http://msdn.microsoft.com/library/en-us/dnwmt/html/YUVFormats.asp
@@ -64,8 +32,6 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
 
     if (showY && showU && showV) {
         int width2 = width / 2;
-        __m128i zero = _mm_setzero_si128();
-        __m128i v128 = _mm_set1_epi16(128);
         for (i = 0; i < height; i += 2) {
             jbyte *pY1 = cyData + i * width;
             jbyte *pY2 = pY1 + width;
@@ -74,19 +40,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
             jbyte *pU = cuData + (i / 2) * width2;
             jbyte *pV = cvData + (i / 2) * width2;
 
-            j = 0;
-            for (; j <= width2 - 4; j += 4) {
-                __m128i u_raw = _mm_cvtsi32_si128(*(const int *) pU); pU += 4;
-                __m128i v_raw = _mm_cvtsi32_si128(*(const int *) pV); pV += 4;
-                __m128i u8 = _mm_unpacklo_epi8(u_raw, u_raw);
-                __m128i v8 = _mm_unpacklo_epi8(v_raw, v_raw);
-                __m128i u16 = _mm_sub_epi16(_mm_unpacklo_epi8(u8, zero), v128);
-                __m128i v16 = _mm_sub_epi16(_mm_unpacklo_epi8(v8, zero), v128);
-                yuv_to_rgb_sse_8px(pY1, u16, v16, pRGB1); pY1 += 8; pRGB1 += 8;
-                yuv_to_rgb_sse_8px(pY2, u16, v16, pRGB2); pY2 += 8; pRGB2 += 8;
-            }
-
-            for (; j < width2; j++) {
+            for (j = 0; j < width2; j++) {
                 int cb = (*pU++ & 255) - 128;
                 int cr = (*pV++ & 255) - 128;
                 int r_c = 409 * cr + 128;
@@ -108,34 +62,18 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
         jbyte *pY = cyData;
         jint *pRGB = rgbInt;
         int total = height * width;
-        i = 0;
-        __m128i mask = _mm_setr_epi8(0, 0, 0, -1, 1, 1, 1, -1, 2, 2, 2, -1, 3, 3, 3, -1);
-        for (; i <= total - 4; i += 4) {
-            __m128i y = _mm_cvtsi32_si128(*(const int *) pY); pY += 4;
-            __m128i rgb = _mm_shuffle_epi8(y, mask);
-            _mm_storeu_si128((__m128i *) pRGB, rgb); pRGB += 4;
-        }
-        for (; i < total; i++) {
+        for (i = 0; i < total; i++) {
             int y = *pY++ & 255;
             *pRGB++ = y | (y << 8) | (y << 16);
         }
     } else if (!showY && (showU ^ showV)) {
         jbyte *chromaData = showU ? cuData : cvData;
         int width2 = width / 2;
-        __m128i mask = _mm_setr_epi8(0, 0, 0, -1, 0, 0, 0, -1, 1, 1, 1, -1, 1, 1, 1, -1);
         for (i = 0; i < height; i += 2) {
             jbyte *pC = chromaData + (i / 2) * width2;
             jint *pRGB1 = rgbInt + i * width;
             jint *pRGB2 = pRGB1 + width;
-            j = 0;
-            for (; j <= width2 - 2; j += 2) {
-                short val = *(const short *) pC; pC += 2;
-                __m128i c = _mm_cvtsi32_si128(val);
-                __m128i rgb = _mm_shuffle_epi8(c, mask);
-                _mm_storeu_si128((__m128i *) pRGB1, rgb); pRGB1 += 4;
-                _mm_storeu_si128((__m128i *) pRGB2, rgb); pRGB2 += 4;
-            }
-            for (; j < width2; j++) {
+            for (j = 0; j < width2; j++) {
                 int val = *pC++ & 255;
                 int rgbVal = val | (val << 8) | (val << 16);
                 *pRGB1++ = rgbVal;
@@ -199,8 +137,6 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastColoredRGBImage(JNIEnv *env,
     int i, j;
 
     int width2 = width / 2;
-    __m128i zero = _mm_setzero_si128();
-    __m128i v128 = _mm_set1_epi16(128);
     for (i = 0; i < height; i += 2) {
         jbyte *pY1 = cyData + i * width;
         jbyte *pY2 = pY1 + width;
@@ -209,19 +145,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastColoredRGBImage(JNIEnv *env,
         jbyte *pU = cuData + (i / 2) * width2;
         jbyte *pV = cvData + (i / 2) * width2;
 
-        j = 0;
-        for (; j <= width2 - 4; j += 4) {
-            __m128i u_raw = _mm_cvtsi32_si128(*(const int *) pU); pU += 4;
-            __m128i v_raw = _mm_cvtsi32_si128(*(const int *) pV); pV += 4;
-            __m128i u8 = _mm_unpacklo_epi8(u_raw, u_raw);
-            __m128i v8 = _mm_unpacklo_epi8(v_raw, v_raw);
-            __m128i u16 = _mm_sub_epi16(_mm_unpacklo_epi8(u8, zero), v128);
-            __m128i v16 = _mm_sub_epi16(_mm_unpacklo_epi8(v8, zero), v128);
-            yuv_to_rgb_sse_8px(pY1, u16, v16, pRGB1); pY1 += 8; pRGB1 += 8;
-            yuv_to_rgb_sse_8px(pY2, u16, v16, pRGB2); pY2 += 8; pRGB2 += 8;
-        }
-
-        for (; j < width2; j++) {
+        for (j = 0; j < width2; j++) {
             int cb = (*pU++ & 255) - 128;
             int cr = (*pV++ & 255) - 128;
             int r_c = 409 * cr + 128;
@@ -274,8 +198,6 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
 
     if (showY && showU && showV) {
         int width2 = width / 2;
-        __m128i zero = _mm_setzero_si128();
-        __m128i v128 = _mm_set1_epi16(128);
         for (i = 0; i < height; i += 2) {
             jbyte *pY1 = cyData + i * width;
             jbyte *pY2 = pY1 + width;
@@ -284,19 +206,7 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
             jbyte *pU = cuData + (i / 2) * width2;
             jbyte *pV = cvData + (i / 2) * width2;
 
-            j = 0;
-            for (; j <= width2 - 4; j += 4) {
-                __m128i u_raw = _mm_cvtsi32_si128(*(const int *) pU); pU += 4;
-                __m128i v_raw = _mm_cvtsi32_si128(*(const int *) pV); pV += 4;
-                __m128i u8 = _mm_unpacklo_epi8(u_raw, u_raw);
-                __m128i v8 = _mm_unpacklo_epi8(v_raw, v_raw);
-                __m128i u16 = _mm_sub_epi16(_mm_unpacklo_epi8(u8, zero), v128);
-                __m128i v16 = _mm_sub_epi16(_mm_unpacklo_epi8(v8, zero), v128);
-                yuv_to_rgb_sse_8px(pY1, u16, v16, pRGB1); pY1 += 8; pRGB1 += 8;
-                yuv_to_rgb_sse_8px(pY2, u16, v16, pRGB2); pY2 += 8; pRGB2 += 8;
-            }
-
-            for (; j < width2; j++) {
+            for (j = 0; j < width2; j++) {
                 int cb = (*pU++ & 255) - 128;
                 int cr = (*pV++ & 255) - 128;
                 double r_c = 1.596027 * cr;
@@ -318,34 +228,18 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
         jbyte *pY = cyData;
         jint *pRGB = rgbInt;
         int total = height * width;
-        i = 0;
-        __m128i mask = _mm_setr_epi8(0, 0, 0, -1, 1, 1, 1, -1, 2, 2, 2, -1, 3, 3, 3, -1);
-        for (; i <= total - 4; i += 4) {
-            __m128i y = _mm_cvtsi32_si128(*(const int *) pY); pY += 4;
-            __m128i rgb = _mm_shuffle_epi8(y, mask);
-            _mm_storeu_si128((__m128i *) pRGB, rgb); pRGB += 4;
-        }
-        for (; i < total; i++) {
+        for (i = 0; i < total; i++) {
             int y = *pY++ & 255;
             *pRGB++ = y | (y << 8) | (y << 16);
         }
     } else if (!showY && (showU ^ showV)) {
         jbyte *chromaData = showU ? cuData : cvData;
         int width2 = width / 2;
-        __m128i mask = _mm_setr_epi8(0, 0, 0, -1, 0, 0, 0, -1, 1, 1, 1, -1, 1, 1, 1, -1);
         for (i = 0; i < height; i += 2) {
             jbyte *pC = chromaData + (i / 2) * width2;
             jint *pRGB1 = rgbInt + i * width;
             jint *pRGB2 = pRGB1 + width;
-            j = 0;
-            for (; j <= width2 - 2; j += 2) {
-                short val = *(const short *) pC; pC += 2;
-                __m128i c = _mm_cvtsi32_si128(val);
-                __m128i rgb = _mm_shuffle_epi8(c, mask);
-                _mm_storeu_si128((__m128i *) pRGB1, rgb); pRGB1 += 4;
-                _mm_storeu_si128((__m128i *) pRGB2, rgb); pRGB2 += 4;
-            }
-            for (; j < width2; j++) {
+            for (j = 0; j < width2; j++) {
                 int val = *pC++ & 255;
                 int rgbVal = val | (val << 8) | (val << 16);
                 *pRGB1++ = rgbVal;
