@@ -82,11 +82,13 @@ public class MainFrame extends JFrame implements ActionListener {
     int colorSpace;
 
     transient Play play;
+    transient Thread playThread;
 
     private boolean firstTime = true;
 
     public MainFrame() {
         super();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
@@ -302,14 +304,26 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void jMenuFileExit() {
-        System.exit(0);
+        stopPlay();
+        if (yuvViewer != null) {
+            yuvViewer.dispose();
+            yuvViewer = null;
+        }
+        dispose();
     }
 
     private void stopPlay() {
         if (play != null) {
             play.setSuspended(true);
             play = null;
+            playThread = null;
         }
+    }
+
+    private void startPlay() {
+        play = yuvViewer.new Play();
+        playThread = new Thread(play);
+        playThread.start();
     }
 
     private void applyScale(int factor) {
@@ -371,17 +385,10 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
             case "Play":
                 if (play == null) {
-                    play = yuvViewer.new Play();
-                    if (play.getSuspended()) {
-                        play.setSuspended(false);
-                    } else {
-                        play.start();
-                    }
+                    startPlay();
                 } else if (play.getEndOfFile()) {
-                    play = null;
                     yuvViewer.prepare();
-                    play = yuvViewer.new Play();
-                    play.start();
+                    startPlay();
                 }
                 break;
             case "StepForeward":
@@ -392,8 +399,7 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
             case "Pause":
                 if (play == null) {
-                    play = yuvViewer.new Play();
-                    play.start();
+                    startPlay();
                 } else {
                     stopPlay();
                 }
@@ -414,10 +420,10 @@ public class MainFrame extends JFrame implements ActionListener {
 
     @Override
     protected void processWindowEvent(WindowEvent we) {
-        super.processWindowEvent(we);
         if (we.getID() == WindowEvent.WINDOW_CLOSING) {
             jMenuFileExit();
         }
+        super.processWindowEvent(we);
     }
 
     public void enableYUVCheckboxes(boolean y, boolean u, boolean v) {

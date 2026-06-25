@@ -252,7 +252,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         return false;
     }
 
-    public class Play extends Thread {
+    public class Play implements Runnable {
         volatile boolean threadSuspended = false;
         volatile boolean endOfFile = false;
 
