@@ -31,54 +31,83 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastRGBImage(JNIEnv *env,
     int i, j;
 
     if (showY && showU && showV) {
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int cb = (cuData[j / 2 + i / 4 * width] & 255) - 128;
-                int cr = (cvData[j / 2 + i / 4 * width] & 255) - 128;
+            jbyte *pY1 = cyData + i * width;
+            jbyte *pY2 = pY1 + width;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            jbyte *pU = cuData + (i / 2) * width2;
+            jbyte *pV = cvData + (i / 2) * width2;
+
+            for (j = 0; j < width2; j++) {
+                int cb = (*pU++ & 255) - 128;
+                int cr = (*pV++ & 255) - 128;
                 int r_c = 409 * cr + 128;
                 int g_c = -100 * cb - 208 * cr + 128;
                 int b_c = 516 * cb + 128;
 
-                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
-                for (int k = 0; k < 4; k++) {
-                    int p = p_idx[k];
-                    int cy = 298 * ((cyData[p] & 255) - 16);
-                    rgbInt[p] = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
-                }
+                int cy;
+                cy = 298 * ((*pY1++ & 255) - 16);
+                *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((*pY1++ & 255) - 16);
+                *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((*pY2++ & 255) - 16);
+                *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((*pY2++ & 255) - 16);
+                *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
             }
         }
     } else if (showY && !showU && !showV) {
-        for (i = 0; i < height * width; i++) {
-            int y = cyData[i] & 255;
-            rgbInt[i] = y | (y << 8) | (y << 16);
+        jbyte *pY = cyData;
+        jint *pRGB = rgbInt;
+        int total = height * width;
+        for (i = 0; i < total; i++) {
+            int y = *pY++ & 255;
+            *pRGB++ = y | (y << 8) | (y << 16);
         }
     } else if (!showY && (showU ^ showV)) {
         jbyte *chromaData = showU ? cuData : cvData;
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int val = chromaData[j / 2 + i / 4 * width] & 255;
+            jbyte *pC = chromaData + (i / 2) * width2;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            for (j = 0; j < width2; j++) {
+                int val = *pC++ & 255;
                 int rgbVal = val | (val << 8) | (val << 16);
-                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = rgbVal;
+                *pRGB1++ = rgbVal;
+                *pRGB1++ = rgbVal;
+                *pRGB2++ = rgbVal;
+                *pRGB2++ = rgbVal;
             }
         }
     } else {
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int cb = (showU ? (cuData[j / 2 + i / 4 * width] & 255) : 0) - 128;
-                int cr = (showV ? (cvData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+            jbyte *pY1 = cyData + i * width;
+            jbyte *pY2 = pY1 + width;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            jbyte *pU = cuData + (i / 2) * width2;
+            jbyte *pV = cvData + (i / 2) * width2;
+
+            for (j = 0; j < width2; j++) {
+                int cb = (showU ? (*pU & 255) : 0) - 128; pU++;
+                int cr = (showV ? (*pV & 255) : 0) - 128; pV++;
                 int r_c = 409 * cr + 128;
                 int g_c = -100 * cb - 208 * cr + 128;
                 int b_c = 516 * cb + 128;
 
-                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
-                for (int k = 0; k < 4; k++) {
-                    int p = p_idx[k];
-                    int cy = 298 * ((showY ? (cyData[p] & 255) : 0) - 16);
-                    rgbInt[p] = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
-                }
+                int cy;
+                cy = 298 * ((showY ? (*pY1 & 255) : 0) - 16); pY1++;
+                *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((showY ? (*pY1 & 255) : 0) - 16); pY1++;
+                *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((showY ? (*pY2 & 255) : 0) - 16); pY2++;
+                *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+                cy = 298 * ((showY ? (*pY2 & 255) : 0) - 16); pY2++;
+                *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
             }
         }
     }
@@ -107,21 +136,31 @@ Java_org_yuvViewer_gui_YUVViewer_calculateFastColoredRGBImage(JNIEnv *env,
     jbyte *cvData = (*env)->GetByteArrayElements(env, vData, 0);
     int i, j;
 
+    int width2 = width / 2;
     for (i = 0; i < height; i += 2) {
-        for (j = 0; j < width; j += 2) {
-            int pos = j + width * i;
-            int cb = (cuData[j / 2 + i / 4 * width] & 255) - 128;
-            int cr = (cvData[j / 2 + i / 4 * width] & 255) - 128;
+        jbyte *pY1 = cyData + i * width;
+        jbyte *pY2 = pY1 + width;
+        jint *pRGB1 = rgbInt + i * width;
+        jint *pRGB2 = pRGB1 + width;
+        jbyte *pU = cuData + (i / 2) * width2;
+        jbyte *pV = cvData + (i / 2) * width2;
+
+        for (j = 0; j < width2; j++) {
+            int cb = (*pU++ & 255) - 128;
+            int cr = (*pV++ & 255) - 128;
             int r_c = 409 * cr + 128;
             int g_c = -100 * cb - 208 * cr + 128;
             int b_c = 516 * cb + 128;
 
-            int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
-            for (int k = 0; k < 4; k++) {
-                int p = p_idx[k];
-                int cy = 298 * ((cyData[p] & 255) - 16);
-                rgbInt[p] = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
-            }
+            int cy;
+            cy = 298 * ((*pY1++ & 255) - 16);
+            *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+            cy = 298 * ((*pY1++ & 255) - 16);
+            *pRGB1++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+            cy = 298 * ((*pY2++ & 255) - 16);
+            *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
+            cy = 298 * ((*pY2++ & 255) - 16);
+            *pRGB2++ = PACK_RGB((cy + r_c) >> 8, (cy + g_c) >> 8, (cy + b_c) >> 8);
         }
     }
     (*env)->ReleaseByteArrayElements(env, yData, cyData, 0);
@@ -158,54 +197,83 @@ Java_org_yuvViewer_gui_YUVViewer_calculateRGBImage(JNIEnv *env,
     int i, j;
 
     if (showY && showU && showV) {
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int cb = (cuData[j / 2 + i / 4 * width] & 255) - 128;
-                int cr = (cvData[j / 2 + i / 4 * width] & 255) - 128;
+            jbyte *pY1 = cyData + i * width;
+            jbyte *pY2 = pY1 + width;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            jbyte *pU = cuData + (i / 2) * width2;
+            jbyte *pV = cvData + (i / 2) * width2;
+
+            for (j = 0; j < width2; j++) {
+                int cb = (*pU++ & 255) - 128;
+                int cr = (*pV++ & 255) - 128;
                 double r_c = 1.596027 * cr;
                 double g_c = -0.391762 * cb - 0.812968 * cr;
                 double b_c = 2.017232 * cb;
 
-                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
-                for (int k = 0; k < 4; k++) {
-                    int p = p_idx[k];
-                    double cy = 1.164383 * ((cyData[p] & 255) - 16);
-                    rgbInt[p] = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
-                }
+                double cy;
+                cy = 1.164383 * ((*pY1++ & 255) - 16);
+                *pRGB1++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((*pY1++ & 255) - 16);
+                *pRGB1++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((*pY2++ & 255) - 16);
+                *pRGB2++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((*pY2++ & 255) - 16);
+                *pRGB2++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
             }
         }
     } else if (showY && !showU && !showV) {
-        for (i = 0; i < height * width; i++) {
-            int y = cyData[i] & 255;
-            rgbInt[i] = y | (y << 8) | (y << 16);
+        jbyte *pY = cyData;
+        jint *pRGB = rgbInt;
+        int total = height * width;
+        for (i = 0; i < total; i++) {
+            int y = *pY++ & 255;
+            *pRGB++ = y | (y << 8) | (y << 16);
         }
     } else if (!showY && (showU ^ showV)) {
         jbyte *chromaData = showU ? cuData : cvData;
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int val = chromaData[j / 2 + i / 4 * width] & 255;
+            jbyte *pC = chromaData + (i / 2) * width2;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            for (j = 0; j < width2; j++) {
+                int val = *pC++ & 255;
                 int rgbVal = val | (val << 8) | (val << 16);
-                rgbInt[pos] = rgbInt[pos + 1] = rgbInt[pos + width] = rgbInt[pos + width + 1] = rgbVal;
+                *pRGB1++ = rgbVal;
+                *pRGB1++ = rgbVal;
+                *pRGB2++ = rgbVal;
+                *pRGB2++ = rgbVal;
             }
         }
     } else {
+        int width2 = width / 2;
         for (i = 0; i < height; i += 2) {
-            for (j = 0; j < width; j += 2) {
-                int pos = j + width * i;
-                int cb = (showU ? (cuData[j / 2 + i / 4 * width] & 255) : 0) - 128;
-                int cr = (showV ? (cvData[j / 2 + i / 4 * width] & 255) : 0) - 128;
+            jbyte *pY1 = cyData + i * width;
+            jbyte *pY2 = pY1 + width;
+            jint *pRGB1 = rgbInt + i * width;
+            jint *pRGB2 = pRGB1 + width;
+            jbyte *pU = cuData + (i / 2) * width2;
+            jbyte *pV = cvData + (i / 2) * width2;
+
+            for (j = 0; j < width2; j++) {
+                int cb = (showU ? (*pU & 255) : 0) - 128; pU++;
+                int cr = (showV ? (*pV & 255) : 0) - 128; pV++;
                 double r_c = 1.596027 * cr;
                 double g_c = -0.391762 * cb - 0.812968 * cr;
                 double b_c = 2.017232 * cb;
 
-                int p_idx[4] = {pos, pos + 1, pos + width, pos + width + 1};
-                for (int k = 0; k < 4; k++) {
-                    int p = p_idx[k];
-                    double cy = 1.164383 * ((showY ? (cyData[p] & 255) : 0) - 16);
-                    rgbInt[p] = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
-                }
+                double cy;
+                cy = 1.164383 * ((showY ? (*pY1 & 255) : 0) - 16); pY1++;
+                *pRGB1++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((showY ? (*pY1 & 255) : 0) - 16); pY1++;
+                *pRGB1++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((showY ? (*pY2 & 255) : 0) - 16); pY2++;
+                *pRGB2++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
+                cy = 1.164383 * ((showY ? (*pY2 & 255) : 0) - 16); pY2++;
+                *pRGB2++ = PACK_RGB((int) (cy + r_c), (int) (cy + g_c), (int) (cy + b_c));
             }
         }
     }
@@ -232,31 +300,34 @@ Java_org_yuvViewer_gui_YUVViewer_resizeRGBImage(JNIEnv *env,
                                                 jintArray rgbImage) {
     jint *scaledImage = (*env)->GetIntArrayElements(env, scaledRGBImage, 0);
     jint *image = (*env)->GetIntArrayElements(env, rgbImage, 0);
+    int swidth = scale * width;
     for (int i = 0; i < height; i++) {
+        jint *pSrcLine = image + i * width;
+        jint *pDstLine = scaledImage + i * scale * swidth;
         for (int j = 0; j < width; j++) {
-            int t = image[j + i * width];
+            int t = *pSrcLine++;
+            jint *pDst = pDstLine + j * scale;
             switch (scale) {
                 case 1:
-                    scaledImage[(scale * j + 0) + (scale * i + 0) * scale * width] = t;
+                    *pDst = t;
                     break;
                 case 2:
-                    scaledImage[(scale * j + 0) + (scale * i + 0) * scale * width] = t;
-                    scaledImage[(scale * j + 0) + (scale * i + 1) * scale * width] = t;
-                    scaledImage[(scale * j + 1) + (scale * i + 0) * scale * width] = t;
-                    scaledImage[(scale * j + 1) + (scale * i + 1) * scale * width] = t;
+                    pDst[0] = t;
+                    pDst[swidth] = t;
+                    pDst[1] = t;
+                    pDst[1 + swidth] = t;
                     break;
                 case 4:
-                    for (int k = 0; k < 4; k++) {
-                        for (int l = 0; l < 4; l++) {
-                            scaledImage[(scale * j + k) + (scale * i + l) * scale * width] = t;
-                        }
+                    for (int l = 0; l < 4; l++) {
+                        jint *pRow = pDst + l * swidth;
+                        pRow[0] = pRow[1] = pRow[2] = pRow[3] = t;
                     }
-
                     break;
                 default:
-                    for (int k = 0; k < scale; k++) {
-                        for (int l = 0; l < scale; l++) {
-                            scaledImage[(scale * j + k) + (scale * i + l) * scale * width] = t;
+                    for (int l = 0; l < scale; l++) {
+                        jint *pRow = pDst + l * swidth;
+                        for (int k = 0; k < scale; k++) {
+                            pRow[k] = t;
                         }
                     }
             }

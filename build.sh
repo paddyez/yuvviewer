@@ -72,17 +72,9 @@ function create_native_library() {
     if [ -n "${LD_LIBRARY_PATH}" ] && [ -d "${LD_LIBRARY_PATH}" ]; then
         echo "  Installing to ${LD_LIBRARY_PATH} (may require sudo)..." | tee -a "$logfile"
         # Wir versuchen es, aber scheitern nicht hart, wenn sudo fehlschlägt
-        sudo cp "${libcalc}" "${LD_LIBRARY_PATH}/" || echo "Warning: Could not copy to LD_LIBRARY_PATH" | tee -a "$logfile"
+        sudo mv "${libcalc}" "${LD_LIBRARY_PATH}/" || echo "Warning: Could not copy to LD_LIBRARY_PATH" | tee -a "$logfile"
     fi
 
-    echo "  Distributing ${libcalc} to build locations..." | tee -a "$logfile"
-    cp "${libcalc}" "${cwd}/"
-    mkdir -p "${cwd}/target" && cp "${libcalc}" "${cwd}/target/"
-    mkdir -p "${cwd}/build/libs" && cp "${libcalc}" "${cwd}/build/libs/"
-    
-    # Aufräumen im C-Verzeichnis (Binary löschen nach Kopieren)
-    rm "${libcalc}"
-    
     popd > /dev/null
 }
 
@@ -101,7 +93,6 @@ function cleanup() {
     # Manuelle Reste entfernen
     find src -name "*.class" -delete
     rm -f src/main/c/org_yuvViewer_gui_YUVViewer.h
-    rm -f libcalc.so
     echo "Cleanup finished." | tee -a "$logfile"
 }
 
