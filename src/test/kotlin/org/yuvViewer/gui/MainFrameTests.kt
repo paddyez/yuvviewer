@@ -5,6 +5,7 @@ import org.yuvViewer.utils.YUVDeclaration
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.event.ActionEvent
+import java.awt.event.KeyEvent
 import java.io.File
 import java.nio.file.Files
 import javax.swing.*
@@ -164,6 +165,77 @@ class MainFrameTests {
         assertThat(visible).`as`("About dialog should be visible").isTrue()
         SwingUtilities.invokeLater {
             java.awt.Window.getWindows().filterIsInstance<FrameAboutBox>().forEach { it.dispose() }
+        }
+    }
+
+    // ── Tests für jMenuFileOpen ────────────────────────────────────────────────
+
+    @Test
+    fun testFileOpenMenuItemHasCtrlOAccelerator() {
+        val menuBar = mainFrame!!.jMenuBar
+        val fileMenu = (0 until menuBar.menuCount).map { menuBar.getMenu(it) }.find { it.text == "File" }!!
+        val openItem = (0 until fileMenu.itemCount).mapNotNull { fileMenu.getItem(it) }.find { it.text == "Open" }!!
+        val expected = KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK)
+        assertThat(openItem.accelerator).isEqualTo(expected)
+    }
+
+    @Test
+    fun testFileOpenCancelledDoesNotStartViewer() {
+        SwingUtilities.invokeLater { mainFrame!!.jMenuFileOpen() }
+        var dialog: JDialog? = null
+        for (i in 1..30) {
+            Thread.sleep(100)
+            SwingUtilities.invokeAndWait {
+                dialog = java.awt.Window.getWindows()
+                    .filterIsInstance<JDialog>()
+                    .find { it.isVisible && findComponent(it, JFileChooser::class.java) != null }
+            }
+            if (dialog != null) break
+        }
+        Assumptions.assumeTrue(dialog != null, "JFileChooser dialog not found; skipping in headless/virtual environment")
+        val cancelText = javax.swing.UIManager.getString("FileChooser.cancelButtonText") ?: "Cancel"
+        val cancelButton = findComponents(dialog!!.contentPane, JButton::class.java)
+            .find { it.text == cancelText }
+        assertThat(cancelButton).isNotNull()
+        SwingUtilities.invokeAndWait { cancelButton!!.doClick() }
+        SwingUtilities.invokeAndWait { }
+        val viewerField = MainFrame::class.java.getDeclaredField("yuvViewer")
+        viewerField.isAccessible = true
+        assertThat(viewerField.get(mainFrame)).isNull()
+    }
+
+    @Test
+    fun testFileOpenWithKnownExtensionStartsViewer() {
+        // .qcif has a known dimension (176×144), so no settings dialog is shown
+        val fileSize = 176 * 144 + 176 * 144 / 2
+        val qcifFile = File.createTempFile("test", ".qcif")
+        qcifFile.deleteOnExit()
+        Files.write(qcifFile.toPath(), ByteArray(fileSize))
+        try {
+            SwingUtilities.invokeLater { mainFrame!!.jMenuFileOpen() }
+            var dialog: JDialog? = null
+            for (i in 1..30) {
+                Thread.sleep(100)
+                SwingUtilities.invokeAndWait {
+                    dialog = java.awt.Window.getWindows()
+                        .filterIsInstance<JDialog>()
+                        .find { it.isVisible && findComponent(it, JFileChooser::class.java) != null }
+                }
+                if (dialog != null) break
+            }
+            assertThat(dialog).`as`("File chooser dialog should be visible").isNotNull()
+            val fileChooser = findComponent(dialog!!, JFileChooser::class.java)!!
+            SwingUtilities.invokeAndWait { fileChooser.selectedFile = qcifFile }
+            val approveButton = findComponents(dialog!!.contentPane, JButton::class.java)
+                .find { it.text == "Open" }
+            assertThat(approveButton).isNotNull()
+            SwingUtilities.invokeAndWait { approveButton!!.doClick() }
+            SwingUtilities.invokeAndWait { }
+            val viewerField = MainFrame::class.java.getDeclaredField("yuvViewer")
+            viewerField.isAccessible = true
+            assertThat(viewerField.get(mainFrame)).isNotNull()
+        } finally {
+            qcifFile.delete()
         }
     }
 

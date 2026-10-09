@@ -32,7 +32,7 @@ class FrameAboutBoxTest {
         val labelTexts = labels.map { it.text }
         assertThat(labelTexts).contains("YUV Viewer")
         assertThat(labelTexts).contains("1.0")
-        assertThat(labelTexts).contains("Copyright © 2002")
+        assertThat(labelTexts).contains("WTFPL – Do What the Fuck You Want to Public License")
         assertThat(labelTexts).contains("Versatile YUV viewing utility")
     }
     @Test

@@ -68,11 +68,11 @@ public class MainFrame extends JFrame implements ActionListener {
             false, //closable
             false, //maximizable
             true);
-    private final JButton jButtonStepBack = new JButton("||<");
-    private final JButton jButtonPlay = new JButton(">");
-    private final JButton jButtonStepForward = new JButton(">||");
-    private final JButton jButtonPause = new JButton("||");
-    private final JButton jButtonRewind = new JButton("<<");
+    private final JButton jButtonStepBack = new JButton("⏮");
+    private final JButton jButtonPlay = new JButton("▶");
+    private final JButton jButtonStepForward = new JButton("⏭");
+    private final JButton jButtonPause = new JButton("⏸");
+    private final JButton jButtonRewind = new JButton("⏪");
     private final JLabel jFrameText = new JLabel("Frame #:");
     private final WholeNumberTextField frameText = new WholeNumberTextField(3);
 

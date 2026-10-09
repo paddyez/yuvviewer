@@ -52,7 +52,7 @@ mvn verify
 ant run
 # Native Bibliothek kompilieren
 cd src/main/c
-gcc -shared -fPIC -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc.so YUVViewerImplementation.c
+gcc/clang -shared -fPIC -O2 -msse4.1 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc.so YUVViewerImplementation.c
 # In ein Verzeichnis im LD_LIBRARY_PATH verschieben
 mv libcalc.so /usr/local/lib/
 # AUsführen
