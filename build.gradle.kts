@@ -43,7 +43,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    pitestClasspath("org.pitest:pitest-command-line:1.25.5")
+    pitestClasspath("org.pitest:pitest-command-line:1.30.0")
     pitestClasspath("org.pitest:pitest-junit5-plugin:1.2.2")
     implementation(kotlin("stdlib-jdk8"))
 }
