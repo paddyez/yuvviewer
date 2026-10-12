@@ -240,7 +240,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
 
     public void jMenuFileOpen() {
-        JFileChooser jFileChooser = new JFileChooser();
+        JFileChooser jFileChooser = new FileSelectionChooser();
         ExtensionFileFilter extensionFileFilter = new ExtensionFileFilter("yuv");
         jFileChooser.addChoosableFileFilter(extensionFileFilter);
         jFileChooser.addChoosableFileFilter(new ExtensionFileFilter("sqcif"));
@@ -251,8 +251,8 @@ public class MainFrame extends JFrame implements ActionListener {
         jFileChooser.addChoosableFileFilter(new ExtensionFileFilter("tv"));
 
         jFileChooser.setFileFilter(extensionFileFilter);
+        jFileChooser.setApproveButtonToolTipText("Select a 4:2:0 *.yuv File");
         int returnVal = jFileChooser.showDialog(MainFrame.this, "Open");
-        jFileChooser.setApproveButtonToolTipText("Select an 4:2:0 *.yuv File");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             yuvFile = jFileChooser.getSelectedFile();
             if (ExtensionUtils.approveSelection(yuvFile)) {
