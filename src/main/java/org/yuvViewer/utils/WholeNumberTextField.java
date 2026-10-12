@@ -10,8 +10,11 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WholeNumberTextField extends JTextField {
+    private static final Logger logger = LogManager.getLogger(WholeNumberTextField.class);
     private final transient Toolkit toolkit;
     private final NumberFormat integerFormatter;
 
@@ -63,7 +66,7 @@ public class WholeNumberTextField extends JTextField {
                     result[j++] = source[i];
                 else {
                     toolkit.beep();
-                    //			    System.err.println("insertString: " + source[i]);
+                    logger.debug("Ignoring non-digit input: {}", source[i]);
                 }
             }
             super.insertString(offs, new String(result, 0, j), a);

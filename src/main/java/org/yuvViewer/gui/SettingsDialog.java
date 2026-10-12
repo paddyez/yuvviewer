@@ -26,8 +26,11 @@ import javax.swing.border.TitledBorder;
 
 import org.yuvViewer.utils.WholeNumberTextField;
 import org.yuvViewer.utils.YUVDeclaration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SettingsDialog extends JDialog implements ActionListener {
+    private static final Logger logger = LogManager.getLogger(SettingsDialog.class);
     MainFrame parent;
     private final JTabbedPane tabbedPaneSettings = new JTabbedPane();
     private final JButton buttonOK = new JButton();
@@ -82,7 +85,7 @@ public class SettingsDialog extends JDialog implements ActionListener {
         try {
             jbInit();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to initialize the settings dialog", e);
         }
     }
 
@@ -215,7 +218,7 @@ public class SettingsDialog extends JDialog implements ActionListener {
                 parent.setColorSpace(colorspace);
                 cancel();
             } else {
-                System.out.println("Settings not valid!");
+                logger.warn("Settings are not valid");
             }
         } else if (e.getSource() == sqcifButton ||
                 e.getSource() == qcifButton ||

@@ -30,6 +30,8 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.yuvViewer.gui.YUVViewer.Play;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yuvViewer.utils.ExtensionFileFilter;
 import org.yuvViewer.utils.ExtensionUtils;
 import org.yuvViewer.utils.WholeNumberTextField;
@@ -39,6 +41,7 @@ import org.yuvViewer.utils.WholeNumberTextField;
  * @version 1.0
  */
 public class MainFrame extends JFrame implements ActionListener {
+    private static final Logger logger = LogManager.getLogger(MainFrame.class);
     private final transient LookAndFeelInfo[] lookAndFeelInfo = UIManager.getInstalledLookAndFeels();
     private transient LookAndFeelInfo info;
     private final SettingsDialog settingsDialog = new SettingsDialog(this);
@@ -93,7 +96,7 @@ public class MainFrame extends JFrame implements ActionListener {
         try {
             jbInit();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to initialize the main window", e);
         }
     }
 
@@ -184,7 +187,7 @@ public class MainFrame extends JFrame implements ActionListener {
                         SwingUtilities.updateComponentTreeUI(MainFrame.this);
                         SwingUtilities.updateComponentTreeUI(jInternalFrame.getContentPane());
                     } catch (Exception e) {
-                        System.err.println("unable to set UI " + e.getMessage());
+                        logger.error("Unable to set look and feel {}", info.getClassName(), e);
                     }
                 }
             });
@@ -269,10 +272,10 @@ public class MainFrame extends JFrame implements ActionListener {
                 }
                 startupViewer();
             } else {
-                System.out.println("I do not approve your selection");
+                logger.warn("Unsupported file selection: {}", yuvFile);
             }
         } else {
-            System.out.println("Selection cancelled by user");
+            logger.info("File selection cancelled by user");
         }
     }
 
@@ -413,7 +416,7 @@ public class MainFrame extends JFrame implements ActionListener {
                 jMenuHelpAbout();
                 break;
             default:
-                System.err.println("Command not found");
+                logger.error("Unknown action command: {}", command);
                 break;
         }
     }

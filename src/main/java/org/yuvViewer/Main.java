@@ -4,13 +4,17 @@ import javax.swing.UIManager;
 import java.awt.*;
 
 import org.yuvViewer.gui.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class Main {
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
 	public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to set the system look and feel", e);
         }
         createMainFrame();
     }

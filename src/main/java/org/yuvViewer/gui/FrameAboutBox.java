@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <p>The JDialog showing information about the program</p>
@@ -18,6 +20,7 @@ import java.net.URL;
  * @version 1.0
  */
 public class FrameAboutBox extends JDialog implements ActionListener {
+    private static final Logger logger = LogManager.getLogger(FrameAboutBox.class);
     private final JPanel panel1 = new JPanel();
     private final JPanel panel2 = new JPanel();
     private final JPanel insetsPanel1 = new JPanel();
@@ -45,7 +48,7 @@ public class FrameAboutBox extends JDialog implements ActionListener {
         try {
             jbInit();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to initialize the about dialog", e);
         }
     }
 
@@ -58,9 +61,13 @@ public class FrameAboutBox extends JDialog implements ActionListener {
         try {
             imageResource = FrameAboutBox.class.getResource("/img/movie.jpg");
             licenseImageResource = FrameAboutBox.class.getResource("/img/wtfpl-badge-1.png");
-            System.out.println("Trying to load image resource: movie.jpg" + (imageResource == null ? " (not found)" : " (found)"));
+            if (imageResource == null) {
+                logger.warn("Image resource not found: /img/movie.jpg");
+            } else {
+                logger.debug("Image resource loaded: /img/movie.jpg");
+            }
         } catch (NullPointerException npe) {
-            System.err.println(npe.getMessage());
+            logger.error("Unable to load about dialog image resources", npe);
         }
         if(imageResource != null) {
             imageLabel.setIcon(new ImageIcon(imageResource));

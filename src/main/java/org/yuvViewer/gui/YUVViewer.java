@@ -16,8 +16,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.yuvViewer.utils.YUVDeclaration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class YUVViewer extends Window implements MouseMotionListener, MouseListener {
+    private static final Logger logger = LogManager.getLogger(YUVViewer.class);
+
     static {
         String libName = "calc";
         try {
@@ -68,7 +72,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             }
 
             if (!loaded) {
-                System.err.println(errorLog.toString());
+                logger.error("{}", errorLog, ule);
                 throw new UnsatisfiedLinkError("Native library 'calc' could not be loaded from any of the searched locations.");
             }
         }
@@ -142,7 +146,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         this.size = size;
         this.colorspace = cc;
         if (!((size.width * size.height) % 2 == 0)) {
-            System.err.println("Something fishy with the Dimension");
+            logger.warn("YUV dimensions have an odd pixel count: {}x{}", size.width, size.height);
         }
         bufferedImage = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB);
         prepare();
@@ -180,17 +184,17 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             try {
                 randomAccessFile.close();
             } catch (IOException ioe) {
-                System.err.println("Failed to close file: " + ioe.getMessage());
+                logger.error("Failed to close file {}", yuvFile, ioe);
             }
             randomAccessFile = null;
         }
         try {
             randomAccessFile = new RandomAccessFile(yuvFile, "r");
         } catch (FileNotFoundException | SecurityException fnfe) {
-            System.err.println(fnfe.getMessage());
+            logger.error("Unable to open file {}", yuvFile, fnfe);
         }
         if (readData()) {
-            System.out.println("End of file!");
+            logger.info("End of file reached: {}", yuvFile);
         }
         rgbImage = new int[size.width * size.height];
 
@@ -217,7 +221,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 return true;
             }
         } catch (IOException | IndexOutOfBoundsException ioe) {
-            System.err.println(ioe);
+            logger.error("Unable to read the next frame from {}", yuvFile, ioe);
         }
         frameNumber++;
         frame.setFrameNumber(frameNumber);
@@ -247,7 +251,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 return true;
             }
         } catch (IOException | IndexOutOfBoundsException ioe) {
-            System.err.println(ioe);
+            logger.error("Unable to read the previous frame from {}", yuvFile, ioe);
         }
         return false;
     }
@@ -284,7 +288,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                             wait();
                     }
                 } catch (InterruptedException ie) {
-                    System.err.println(ie.getMessage());
+                    logger.warn("Playback thread interrupted", ie);
                 }
             }
             endOfFile = true;
@@ -388,7 +392,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             try {
                 randomAccessFile.close();
             } catch (IOException ioe) {
-                System.err.println("Failed to close file: " + ioe.getMessage());
+                logger.error("Failed to close file {}", yuvFile, ioe);
             }
             randomAccessFile = null;
         }
@@ -425,22 +429,17 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     }
 
     public void mouseReleased(MouseEvent mouseEvent) {
-        //	System.out.println("released");
     }
 
     public void mouseEntered(MouseEvent mouseEvent) {
-        //	System.out.println("entered");
     }
 
     public void mouseExited(MouseEvent mouseEvent) {
-        //	System.out.println("exited");
     }
 
     public void mouseMoved(MouseEvent mouseEvent) {
-        //	System.out.println("moved");
     }
 
     public void mouseClicked(MouseEvent mouseEvent) {
-        //	System.out.println("clicked");
     }
 }
