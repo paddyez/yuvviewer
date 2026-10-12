@@ -12,14 +12,25 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:deprecation")
     options.isDeprecation = true
 }
+tasks.compileJava {
+    options.headerOutputDirectory.set(layout.buildDirectory.dir("generated/jni"))
+}
+val runtimeClasspath = configurations.runtimeClasspath
+val copyRuntimeDependencies by tasks.registering(Sync::class) {
+    from(runtimeClasspath)
+    into(layout.buildDirectory.dir("libs/lib"))
+}
 tasks.jar {
+    dependsOn(copyRuntimeDependencies)
     manifest {
         attributes(
-            "Main-Class" to "org.yuvViewer.Main"
+            "Main-Class" to "org.yuvViewer.Main",
+            "Class-Path" to runtimeClasspath.get().files.joinToString(" ") { "lib/${it.name}" }
         )
     }
 }
 tasks.test {
+    dependsOn(tasks.jar)
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
 }

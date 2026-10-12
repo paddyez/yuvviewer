@@ -13,7 +13,7 @@ Ein YUV-Datei-Viewer für Ubuntu GNU/Linux (getestet mit OpenJDK 14/26, Bash und
 Für die GUI unter Linux wird ggf. `libcanberra` benötigt:
 [source,bash]
 ----
-sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+sudo apt install libcanberra-gtk3-module
 ----
 
 == Umgebung einrichten
@@ -41,8 +41,6 @@ Das `build.sh`-Skript übernimmt sowohl die native als auch die Java-Kompilierun
 
 [source,bash]
 ----
-# JNI-Header generieren und Java-Klassen kompilieren
-javac -sourcepath src/main/java -h src/main/c src/main/java/org/yuvViewer/gui/YUVViewer.java
 # Wählen Sie Ihr bevorzugtes Build-Tool:
 # Gradle:
 ./gradlew compileJava jar
@@ -52,14 +50,24 @@ mvn verify
 ant run
 # Native Bibliothek kompilieren
 cd src/main/c
-gcc/clang -shared -fPIC -O2 -msse4.1 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc.so YUVViewerImplementation.c
+gcc -shared -fPIC -Oz -msse4.1 -I../../build/generated/jni -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc.so YUVViewerImplementation.c
+clang -shared -fPIC -Oz -Os -msse4.1 -I../../build/generated/jni -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libcalc_clang.so YUVViewerImplementation.c
 # In ein Verzeichnis im LD_LIBRARY_PATH verschieben
 mv libcalc.so /usr/local/lib/
+cd ../../..
 # AUsführen
-java -jar build/libs/yuvViewer-1.0-SNAPSHOT.jar
+java -jar --enable-native-access=ALL-UNNAMED build/libs/yuvViewer-1.0-SNAPSHOT.jar
 ----
 
+Beim Gradle-Build werden die Laufzeitbibliotheken nach `build/libs/lib/`
+kopiert und im Manifest des Anwendungs-JARs referenziert. Zum Weitergeben
+muessen das JAR und der danebenliegende Ordner `lib/` zusammen kopiert werden.
+Die JNI-Header erzeugt `compileJava` unter `build/generated/jni/`.
+
 == YUV-Dateien
+
+Im Dateiauswahldialog ist „Open“ nur aktiv, wenn eine vorhandene Datei ausgewählt ist.
+Verzeichnisse können weiterhin per Doppelklick geöffnet werden.
 
 Informationen zum YUV-Format finden Sie auf link:https://en.wikipedia.org/wiki/YUV[Wikipedia].
 
@@ -72,11 +80,20 @@ Das Projekt enthält die Testdatei `test_176x144.yuv` (YUV 4:2:0). Beim Öffnen 
 
 == Entwicklung
 
+=== Logging
+
+Die Anwendung verwendet Log4j 2. Die Konfiguration liegt in
+`src/main/resources/log4j2.xml` und wird beim Build in das JAR aufgenommen.
+Standardmaessig werden Meldungen ab `INFO` mit Zeitstempel, Log-Level und
+Klassenname auf der Fehlerkonsole ausgegeben; Exceptions enthalten den Stacktrace.
+Fuer eine eigene Konfiguration kann beim Start
+`-Dlog4j2.configurationFile=/pfad/zur/log4j2.xml` angegeben werden.
+
 === Sonarqube
 [source,bash]
 ----
 docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
-./gradlew sonarqube -Dsonar.projectKey=yuvViewer -Dsonar.host.url=http://localhost:9000 -Dsonar.login=ce251f3c90c71c366599c5c01513e564fead6d39
+./gradlew sonarqube -Dsonar.projectKey=yuvViewer -Dsonar.host.url=http://localhost:9000 -Dsonar.login=TOKEN
 ----
 
 == Legacy-Plattformen (Veraltet)

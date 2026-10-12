@@ -38,21 +38,30 @@ function create_native_library() {
     echo "Creating native library with JNI..." | tee -a "$logfile"
     # JNI Header generieren
     echo "  Generating JNI header..." | tee -a "$logfile"
-    # Lombok wird als Annotation Processor benötigt
-    LOMBOK_JAR=""
-    for candidate in \
-        "${HOME}/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38"/*/lombok-1.18.38.jar \
-        "${HOME}/.m2/repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar"; do
-        if [ -f "$candidate" ]; then
-            LOMBOK_JAR="$candidate"
-            break
+    if [ -f "gradlew" ] || [ -f "build.gradle.kts" ] || [ -f "build.gradle" ]; then
+        if [ -f "gradlew" ]; then
+            ./gradlew compileJava >> "$logfile" 2>&1
+        else
+            gradle compileJava >> "$logfile" 2>&1
         fi
-    done
-    if [ -n "$LOMBOK_JAR" ]; then
-        javac -cp "$LOMBOK_JAR" -processorpath "$LOMBOK_JAR" -sourcepath src/main/java -h "${native_dir}" "${gui_src}" >> "$logfile" 2>&1
+        options+=("-I${cwd}/build/generated/jni")
     else
-        echo "  Warning: Lombok JAR not found, trying without it..." | tee -a "$logfile"
-        javac -sourcepath src/main/java -h "${native_dir}" "${gui_src}" >> "$logfile" 2>&1
+        # Lombok wird als Annotation Processor benötigt
+        LOMBOK_JAR=""
+        for candidate in \
+            "${HOME}/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38"/*/lombok-1.18.38.jar \
+            "${HOME}/.m2/repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar"; do
+            if [ -f "$candidate" ]; then
+                LOMBOK_JAR="$candidate"
+                break
+            fi
+        done
+        if [ -n "$LOMBOK_JAR" ]; then
+            javac -cp "$LOMBOK_JAR" -processorpath "$LOMBOK_JAR" -sourcepath src/main/java -h "${native_dir}" "${gui_src}" >> "$logfile" 2>&1
+        else
+            echo "  Warning: Lombok JAR not found, trying without it..." | tee -a "$logfile"
+            javac -sourcepath src/main/java -h "${native_dir}" "${gui_src}" >> "$logfile" 2>&1
+        fi
     fi
     # In das C-Verzeichnis wechseln
     pushd "${native_dir}" > /dev/null
