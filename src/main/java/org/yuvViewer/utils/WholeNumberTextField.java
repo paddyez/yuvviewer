@@ -1,12 +1,15 @@
 package org.yuvViewer.utils;
 
-import javax.swing.*;
-import javax.swing.text.*;
-
 import java.awt.Toolkit;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+
+import javax.swing.JTextField;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 
 public class WholeNumberTextField extends JTextField {
     private final transient Toolkit toolkit;
@@ -16,7 +19,6 @@ public class WholeNumberTextField extends JTextField {
         super(columns);
         toolkit = Toolkit.getDefaultToolkit();
         integerFormatter = NumberFormat.getNumberInstance(Locale.US);
-        integerFormatter.setParseIntegerOnly(true);
         setValue(value);
     }
 
@@ -24,7 +26,6 @@ public class WholeNumberTextField extends JTextField {
         super(columns);
         toolkit = Toolkit.getDefaultToolkit();
         integerFormatter = NumberFormat.getNumberInstance(Locale.US);
-        integerFormatter.setParseIntegerOnly(true);
     }
 
     public int getValue() {

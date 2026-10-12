@@ -1,13 +1,38 @@
 package org.yuvViewer.gui;
 
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.io.File;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.yuvViewer.utils.*;
 import org.yuvViewer.gui.YUVViewer.Play;
+import org.yuvViewer.utils.ExtensionFileFilter;
+import org.yuvViewer.utils.ExtensionUtils;
+import org.yuvViewer.utils.WholeNumberTextField;
 
 /**
  * @author Patrick-Emil Zörner
@@ -43,25 +68,27 @@ public class MainFrame extends JFrame implements ActionListener {
             false, //closable
             false, //maximizable
             true);
-    private final JButton jButtonStepBack = new JButton("||<");
-    private final JButton jButtonPlay = new JButton(">");
-    private final JButton jButtonStepForeward = new JButton(">||");
-    private final JButton jButtonPause = new JButton("||");
-    private final JButton jButtonRewind = new JButton("<<");
+    private final JButton jButtonStepBack = new JButton("⏮");
+    private final JButton jButtonPlay = new JButton("▶");
+    private final JButton jButtonStepForward = new JButton("⏭");
+    private final JButton jButtonPause = new JButton("⏸");
+    private final JButton jButtonRewind = new JButton("⏪");
     private final JLabel jFrameText = new JLabel("Frame #:");
     private final WholeNumberTextField frameText = new WholeNumberTextField(3);
 
     private YUVViewer yuvViewer = null;
     private File yuvFile;
-    private Dimension yuvDimension;
-    private int colorSpace;
+    Dimension yuvDimension;
+    int colorSpace;
 
     transient Play play;
+    transient Thread playThread;
 
     private boolean firstTime = true;
 
     public MainFrame() {
         super();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
@@ -81,7 +108,7 @@ public class MainFrame extends JFrame implements ActionListener {
         jMenuFile.setMnemonic(KeyEvent.VK_F);
         getAccessibleContext().setAccessibleDescription("File");
         jMenuTools.setText("Tools");
-        jMenuFile.setMnemonic(KeyEvent.VK_T);
+        jMenuTools.setMnemonic(KeyEvent.VK_T);
         getAccessibleContext().setAccessibleDescription("Tools");
         jMenuFileOpen.setText("Open");
         jMenuFileOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
@@ -171,21 +198,21 @@ public class MainFrame extends JFrame implements ActionListener {
         jButtonStepBack.setToolTipText("step one frame back");
         jButtonPlay.setActionCommand("Play");
         jButtonPlay.setToolTipText("play");
-        jButtonStepForeward.setActionCommand("StepForeward");
-        jButtonStepForeward.setToolTipText("step one frame foreward");
+        jButtonStepForward.setActionCommand("StepForward");
+        jButtonStepForward.setToolTipText("step one frame forward");
         jButtonPause.setActionCommand("Pause");
-        jButtonPause.setToolTipText("plause");
+        jButtonPause.setToolTipText("pause");
         jButtonRewind.setActionCommand("Rewind");
         jButtonRewind.setToolTipText("rewind");
         jButtonStepBack.addActionListener(this);
         jButtonPlay.addActionListener(this);
-        jButtonStepForeward.addActionListener(this);
+        jButtonStepForward.addActionListener(this);
         jButtonPause.addActionListener(this);
         jButtonRewind.addActionListener(this);
         jInternalFrame.getContentPane().add(jButtonRewind);
         jInternalFrame.getContentPane().add(jButtonStepBack);
         jInternalFrame.getContentPane().add(jButtonPlay);
-        jInternalFrame.getContentPane().add(jButtonStepForeward);
+        jInternalFrame.getContentPane().add(jButtonStepForward);
         jInternalFrame.getContentPane().add(jButtonPause);
         jInternalFrame.getContentPane().add(jFrameText);
         jInternalFrame.getContentPane().add(frameText);
@@ -199,12 +226,7 @@ public class MainFrame extends JFrame implements ActionListener {
             jInternalFrame.setVisible(true);
             firstTime = false;
         } else {
-            if (play != null) {
-                play.setSuspended(true);
-                if (play.getSuspended()) {
-                    play = null;
-                }
-            }
+            stopPlay();
             jDesktop.remove(yuvViewer);
             yuvViewer.dispose();
             yuvViewer = null;
@@ -282,7 +304,35 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void jMenuFileExit() {
-        System.exit(0);
+        stopPlay();
+        if (yuvViewer != null) {
+            yuvViewer.dispose();
+            yuvViewer = null;
+        }
+        dispose();
+    }
+
+    private void stopPlay() {
+        if (play != null) {
+            play.setSuspended(true);
+            play = null;
+            playThread = null;
+        }
+    }
+
+    private void startPlay() {
+        play = yuvViewer.new Play();
+        playThread = new Thread(play);
+        playThread.start();
+    }
+
+    private void applyScale(int factor) {
+        if (yuvViewer != null) {
+            stopPlay();
+            yuvViewer.setScale(factor);
+        } else {
+            jMenuScale1.setSelected(true);
+        }
     }
 
     public void actionPerformed(ActionEvent ae) {
@@ -295,48 +345,16 @@ public class MainFrame extends JFrame implements ActionListener {
                 jMenuFileOpen();
                 break;
             case "Scale 1:1":
-                if (yuvViewer != null) {
-                    yuvViewer.setScale(1);
-                }
+                applyScale(1);
                 break;
             case "Scale 1:2":
-                if (yuvViewer != null) {
-                    if (play != null) {
-                        play.setSuspended(true);
-                        if (play.getSuspended()) {
-                            play = null;
-                        }
-                    }
-                    yuvViewer.setScale(2);
-                } else {
-                    jMenuScale1.setSelected(true);
-                }
+                applyScale(2);
                 break;
             case "Scale 1:4":
-                if (yuvViewer != null) {
-                    if (play != null) {
-                        play.setSuspended(true);
-                        if (play.getSuspended()) {
-                            play = null;
-                        }
-                    }
-                    yuvViewer.setScale(4);
-                } else {
-                    jMenuScale1.setSelected(true);
-                }
+                applyScale(4);
                 break;
             case "Scale 1:8":
-                if (yuvViewer != null) {
-                    if (play != null) {
-                        play.setSuspended(true);
-                        if (play.getSuspended()) {
-                            play = null;
-                        }
-                    }
-                    yuvViewer.setScale(8);
-                } else {
-                    jMenuScale1.setSelected(true);
-                }
+                applyScale(8);
                 break;
             case "Show Y":
                 if (yuvViewer != null) {
@@ -367,20 +385,13 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
             case "Play":
                 if (play == null) {
-                    play = yuvViewer.new Play();
-                    if (play.getSuspended()) {
-                        play.setSuspended(false);
-                    } else {
-                        play.start();
-                    }
+                    startPlay();
                 } else if (play.getEndOfFile()) {
-                    play = null;
                     yuvViewer.prepare();
-                    play = yuvViewer.new Play();
-                    play.start();
+                    startPlay();
                 }
                 break;
-            case "StepForeward":
+            case "StepForward":
                 if (!yuvViewer.readData()) {
                     yuvViewer.fillColors();
                     yuvViewer.repaint();
@@ -388,13 +399,9 @@ public class MainFrame extends JFrame implements ActionListener {
                 break;
             case "Pause":
                 if (play == null) {
-                    play = yuvViewer.new Play();
-                    play.start();
+                    startPlay();
                 } else {
-                    play.setSuspended(true);
-                    if (play.getSuspended()) {
-                        play = null;
-                    }
+                    stopPlay();
                 }
                 break;
             case "Rewind":
@@ -413,10 +420,10 @@ public class MainFrame extends JFrame implements ActionListener {
 
     @Override
     protected void processWindowEvent(WindowEvent we) {
-        super.processWindowEvent(we);
         if (we.getID() == WindowEvent.WINDOW_CLOSING) {
             jMenuFileExit();
         }
+        super.processWindowEvent(we);
     }
 
     public void enableYUVCheckboxes(boolean y, boolean u, boolean v) {

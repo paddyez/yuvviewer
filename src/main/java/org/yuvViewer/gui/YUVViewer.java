@@ -1,8 +1,11 @@
 package org.yuvViewer.gui;
 
-import org.yuvViewer.utils.YUVDeclaration;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -12,12 +15,62 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.yuvViewer.utils.YUVDeclaration;
+
 public class YUVViewer extends Window implements MouseMotionListener, MouseListener {
     static {
+        String libName = "calc";
         try {
-            System.loadLibrary("calc");
+            System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError ule) {
-            System.err.println(ule.getMessage());
+            String mappedName = System.mapLibraryName(libName);
+            boolean loaded = false;
+
+            // Define search paths
+            java.util.List<String> searchPaths = new java.util.ArrayList<>();
+            searchPaths.add(mappedName); // Current directory
+            searchPaths.add("target" + File.separator + mappedName); // Maven target
+            searchPaths.add("build" + File.separator + "libs" + File.separator + mappedName); // Gradle build
+
+            try {
+                java.security.CodeSource cs = YUVViewer.class.getProtectionDomain().getCodeSource();
+                if (cs != null && cs.getLocation() != null) {
+                    File jarFile = new File(cs.getLocation().getPath());
+                    String jarDir = jarFile.getParent();
+                    if (jarDir != null) {
+                        searchPaths.add(jarDir + File.separator + mappedName);
+                    }
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+
+            StringBuilder errorLog = new StringBuilder();
+            errorLog.append("Could not load library '").append(libName).append("' from java.library.path.\n");
+            errorLog.append("Details: ").append(ule.getMessage()).append("\n");
+            errorLog.append("Attempting fallback search paths:\n");
+
+            for (String path : searchPaths) {
+                File libFile = new File(path);
+                errorLog.append("  Trying: ").append(libFile.getAbsolutePath());
+                if (libFile.exists()) {
+                    try {
+                        System.load(libFile.getAbsolutePath());
+                        errorLog.append(" -> SUCCESS\n");
+                        loaded = true;
+                        break;
+                    } catch (UnsatisfiedLinkError e) {
+                        errorLog.append(" -> FAILED: ").append(e.getMessage()).append("\n");
+                    }
+                } else {
+                    errorLog.append(" -> NOT FOUND\n");
+                }
+            }
+
+            if (!loaded) {
+                System.err.println(errorLog.toString());
+                throw new UnsatisfiedLinkError("Native library 'calc' could not be loaded from any of the searched locations.");
+            }
         }
     }
 
@@ -123,6 +176,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         yData = new byte[yLength];
         uData = new byte[uvLength];
         vData = new byte[uvLength];
+        if (randomAccessFile != null) {
+            try {
+                randomAccessFile.close();
+            } catch (IOException ioe) {
+                System.err.println("Failed to close file: " + ioe.getMessage());
+            }
+            randomAccessFile = null;
+        }
         try {
             randomAccessFile = new RandomAccessFile(yuvFile, "r");
         } catch (FileNotFoundException | SecurityException fnfe) {
@@ -133,7 +194,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         }
         rgbImage = new int[size.width * size.height];
 
-        if (colorspace == YUVDeclaration.ccY) {
+        if (colorspace == YUVDeclaration.CC_Y) {
             setU(false);
             setV(false);
             frame.enableYUVCheckboxes(showY, showU, showV);
@@ -148,7 +209,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             l = m = 0;
 
             k = randomAccessFile.read(yData);
-            if (colorspace == YUVDeclaration.ccYUV) {
+            if (colorspace == YUVDeclaration.CC_YUV) {
                 l = randomAccessFile.read(uData);
                 m = randomAccessFile.read(vData);
             }
@@ -168,7 +229,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         frameNumber = Math.max(frameNumber, 1);
         frame.setFrameNumber(frameNumber);
         int dataLength;
-        if (colorspace == YUVDeclaration.ccYUV) {
+        if (colorspace == YUVDeclaration.CC_YUV) {
             dataLength = size.width * size.height + size.width * size.height / 2;
         } else {
             dataLength = size.width * size.height;
@@ -178,7 +239,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
             l = m = 0;
             randomAccessFile.seek(dataLength * (frameNumber - 1));
             k = randomAccessFile.read(yData);
-            if (colorspace == YUVDeclaration.ccYUV) {
+            if (colorspace == YUVDeclaration.CC_YUV) {
                 l = randomAccessFile.read(uData);
                 m = randomAccessFile.read(vData);
             }
@@ -191,12 +252,15 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
         return false;
     }
 
-    public class Play extends Thread {
-        boolean threadSuspended = false;
-        boolean endOfFile = false;
+    public class Play implements Runnable {
+        volatile boolean threadSuspended = false;
+        volatile boolean endOfFile = false;
 
-        public void setSuspended(boolean suspended) {
+        public synchronized void setSuspended(boolean suspended) {
             threadSuspended = suspended;
+            if (!suspended) {
+                notifyAll();
+            }
             fillColors();
             repaint();
         }
@@ -215,11 +279,9 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 fillFastColors();
                 repaint();
                 try {
-                    if (threadSuspended) {
-                        synchronized (this) {
-                            while (threadSuspended)
-                                wait();
-                        }
+                    synchronized (this) {
+                        while (threadSuspended)
+                            wait();
                     }
                 } catch (InterruptedException ie) {
                     System.err.println(ie.getMessage());
@@ -254,17 +316,7 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                     rgbImage
             );
         }
-
-        if (scale > 1) {
-            scaledRGBImage = YUVViewer.resizeRGBImage(scale,
-                    size.width,
-                    size.height,
-                    scaledRGBImage,
-                    rgbImage);
-            scaledImage.setRGB(0, 0, size.width * scale, size.height * scale, scaledRGBImage, 0, size.width * scale);
-        } else {
-            bufferedImage.setRGB(0, 0, size.width, size.height, rgbImage, 0, size.width);
-        }
+        applyRGBToImage();
     }
 
     /**
@@ -281,6 +333,10 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
                 vData,
                 rgbImage
         );
+        applyRGBToImage();
+    }
+
+    private void applyRGBToImage() {
         if (scale > 1) {
             scaledRGBImage = YUVViewer.resizeRGBImage(scale,
                     size.width,
@@ -296,20 +352,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     public void setScale(int s) {
         scale = s;
         setSize(new Dimension(size.width * scale, size.height * scale));
-        scaledRGBImage = null;
-        scaledImage = null;
-        scaledRGBImage = new int[size.width * scale * size.height * scale];
         if (scale > 1) {
-            scaledRGBImage = YUVViewer.resizeRGBImage(scale,
-                    size.width,
-                    size.height,
-                    scaledRGBImage,
-                    rgbImage);
+            scaledRGBImage = new int[size.width * scale * size.height * scale];
             scaledImage = new BufferedImage(size.width * scale, size.height * scale, BufferedImage.TYPE_INT_RGB);
-            scaledImage.setRGB(0, 0, size.width * scale, size.height * scale, scaledRGBImage, 0, size.width * scale);
         } else {
-            bufferedImage.setRGB(0, 0, size.width, size.height, rgbImage, 0, size.width);
+            scaledRGBImage = null;
+            scaledImage = null;
         }
+        applyRGBToImage();
         repaint();
     }
 
@@ -334,6 +384,14 @@ public class YUVViewer extends Window implements MouseMotionListener, MouseListe
     @Override
     public void dispose() {
         super.dispose();
+        if (randomAccessFile != null) {
+            try {
+                randomAccessFile.close();
+            } catch (IOException ioe) {
+                System.err.println("Failed to close file: " + ioe.getMessage());
+            }
+            randomAccessFile = null;
+        }
         rgbImage = null;
         scaledRGBImage = null;
         bufferedImage = null;

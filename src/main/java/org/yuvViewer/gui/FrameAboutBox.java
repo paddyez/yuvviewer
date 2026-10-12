@@ -11,31 +11,32 @@ import java.net.URL;
  * <p>The JDialog showing information about the program</p>
  * <p>Title: YUV viewer</p>
  * <p>Description: Versatile YUV viewing utility</p>
- * <p>Copyright: © 2002</p>
+ * <p>WTFPL – Do What the Fuck You Want to Public License</p>
  * <p>Company: </p>
  *
  * @author Patrick-Emil Zörner
  * @version 1.0
  */
 public class FrameAboutBox extends JDialog implements ActionListener {
-    private static final JPanel panel1 = new JPanel();
-    private static final JPanel panel2 = new JPanel();
-    private static final JPanel insetsPanel1 = new JPanel();
-    private static final JPanel insetsPanel2 = new JPanel();
-    private static final JPanel insetsPanel3 = new JPanel();
-    private static final JButton buttonOK = new JButton();
-    private static final JLabel imageLabel = new JLabel();
-    private static final JLabel label1 = new JLabel();
-    private static final JLabel label2 = new JLabel();
-    private static final JLabel label3 = new JLabel();
-    private static final JLabel label4 = new JLabel();
-    private static final BorderLayout borderLayout1 = new BorderLayout();
-    private static final BorderLayout borderLayout2 = new BorderLayout();
-    private static final FlowLayout flowLayout1 = new FlowLayout();
-    private static final GridLayout gridLayout1 = new GridLayout();
+    private final JPanel panel1 = new JPanel();
+    private final JPanel panel2 = new JPanel();
+    private final JPanel insetsPanel1 = new JPanel();
+    private final JPanel insetsPanel2 = new JPanel();
+    private final JPanel insetsPanel3 = new JPanel();
+    private final JButton buttonOK = new JButton();
+    private final JLabel imageLabel = new JLabel();
+    private final JLabel licenseImageLabel = new JLabel();
+    private final JLabel label1 = new JLabel();
+    private final JLabel label2 = new JLabel();
+    private final JLabel label3 = new JLabel();
+    private final JLabel label4 = new JLabel();
+    private final BorderLayout borderLayout1 = new BorderLayout();
+    private final BorderLayout borderLayout2 = new BorderLayout();
+    private final FlowLayout flowLayout1 = new FlowLayout();
+    private final GridLayout gridLayout1 = new GridLayout();
     private static final String PRODUCT = "YUV Viewer";
     private static final String VERSION = "1.0";
-    private static final String COPYRIGHT = "Copyright © 2002";
+    private static final String COPYRIGHT = "WTFPL – Do What the Fuck You Want to Public License";
     private static final String COMMENTS = "Versatile YUV viewing utility";
 
     public FrameAboutBox(MainFrame parent) {
@@ -53,22 +54,25 @@ public class FrameAboutBox extends JDialog implements ActionListener {
      */
     private void jbInit() {
         URL imageResource = null;
+        URL licenseImageResource = null;
         try {
-            imageResource = FrameAboutBox.class.getResource("movie.jpg");
-            if(imageResource == null) {
-                imageResource = FrameAboutBox.class.getResource("/img/movie.jpg");
-            }
+            imageResource = FrameAboutBox.class.getResource("/img/movie.jpg");
+            licenseImageResource = FrameAboutBox.class.getResource("/img/wtfpl-badge-1.png");
+            System.out.println("Trying to load image resource: movie.jpg" + (imageResource == null ? " (not found)" : " (found)"));
         } catch (NullPointerException npe) {
             System.err.println(npe.getMessage());
         }
         if(imageResource != null) {
             imageLabel.setIcon(new ImageIcon(imageResource));
         }
+        if(licenseImageResource != null) {
+            licenseImageLabel.setIcon(new ImageIcon(licenseImageResource));
+        }
         this.setTitle("About");
         panel1.setLayout(borderLayout1);
         panel2.setLayout(borderLayout2);
         insetsPanel1.setLayout(flowLayout1);
-        insetsPanel2.setLayout(flowLayout1);
+        insetsPanel2.setLayout(new BoxLayout(insetsPanel2, BoxLayout.Y_AXIS));
         insetsPanel2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         gridLayout1.setRows(4);
         gridLayout1.setColumns(1);
@@ -80,7 +84,11 @@ public class FrameAboutBox extends JDialog implements ActionListener {
         insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
         buttonOK.setText("Ok");
         buttonOK.addActionListener(this);
-        insetsPanel2.add(imageLabel, null);
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        licenseImageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        insetsPanel2.add(imageLabel);
+        insetsPanel2.add(Box.createVerticalStrut(25));
+        insetsPanel2.add(licenseImageLabel);
         panel2.add(insetsPanel2, BorderLayout.WEST);
         this.getContentPane().add(panel1, null);
         insetsPanel3.add(label1, null);

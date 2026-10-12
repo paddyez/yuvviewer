@@ -1,17 +1,33 @@
 package org.yuvViewer.gui;
 
-import org.yuvViewer.utils.WholeNumberTextField;
-import org.yuvViewer.utils.YUVDeclaration;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 
-public class SettingsDialog extends JDialog implements ActionListener, YUVDeclaration {
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.border.TitledBorder;
+
+import org.yuvViewer.utils.WholeNumberTextField;
+import org.yuvViewer.utils.YUVDeclaration;
+
+public class SettingsDialog extends JDialog implements ActionListener {
     MainFrame parent;
     private final JTabbedPane tabbedPaneSettings = new JTabbedPane();
     private final JButton buttonOK = new JButton();
@@ -26,12 +42,38 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
     private final JPanel ccPanel = new JPanel();
     private final GridBagLayout gBL = new GridBagLayout();
     private final GridBagConstraints gBC = new GridBagConstraints();
+
+    private final JLabel sqcifLabel = new JLabel("128x96");
+    private final JLabel qcifLabel = new JLabel("176x144");
+    private final JLabel sifLabel = new JLabel("352x240");
+    private final JLabel cifLabel = new JLabel("352x288");
+    private final JLabel cif4Label = new JLabel("704x576");
+    private final JLabel tvLabel = new JLabel("720x576");
+    private final JLabel hd1label = new JLabel("1280x720");
+    private final JLabel hd2Label = new JLabel("1920x1080");
+    private final JLabel xLabel = new JLabel("x:");
+    private final JLabel yLabel = new JLabel("y:");
+    private final JLabel yuvLabel = new JLabel("yuv");
+    private final JLabel yOnlyLabel = new JLabel("y-only");
+
+    private final JRadioButton sqcifButton = new JRadioButton(YUVDeclaration.YUVNames.SQCIF.name());
+    private final JRadioButton qcifButton = new JRadioButton(YUVDeclaration.YUVNames.QCIF.name());
+    private final JRadioButton sifButton = new JRadioButton(YUVDeclaration.YUVNames.SIF.name());
+    private final JRadioButton cifButton = new JRadioButton(YUVDeclaration.YUVNames.CIF.name());
+    private final JRadioButton cif4Button = new JRadioButton(YUVDeclaration.YUVNames.CIF4.name());
+    private final JRadioButton tvButton = new JRadioButton(YUVDeclaration.YUVNames.TV.name());
+    private final JRadioButton hd1Button = new JRadioButton(YUVDeclaration.YUVNames.HD1.name());
+    private final JRadioButton hd2Button = new JRadioButton(YUVDeclaration.YUVNames.HD2.name());
+    private final JRadioButton customButton = new JRadioButton(YUVDeclaration.YUVNames.CUSTOM.name());
+    private final JRadioButton yuvButton = new JRadioButton("YUV");
+    private final JRadioButton yOnlyButton = new JRadioButton("Y-Only");
+
     private static final String ERR_VIDEOSIZE = "Check Video size";
     private static final String POPUP_CONFIRM_HEADLINE = "Info";
     private static final String POPUP_ERROR_HEADLINE = "Error";
 
     private Dimension dimension;
-    private int colorspace = ccYUV;
+    private int colorspace = YUVDeclaration.CC_YUV;
 
     public SettingsDialog(MainFrame parent) {
         super(parent);
@@ -44,7 +86,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         }
     }
 
-    //private static int USR_MSG_PROJECT_EXISTS=0;    
+    //private static int USR_MSG_PROJECT_EXISTS=0;
     private boolean confirmMessage(String confirmMsg) {
         int ret;
         ret = JOptionPane.showConfirmDialog(this, confirmMsg, POPUP_CONFIRM_HEADLINE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -86,8 +128,7 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         customButton.setMnemonic(KeyEvent.VK_U);
         customButton.addActionListener(this);
         customPanel.setLayout(new FlowLayout());
-        xText.setEditable(false);
-        yText.setEditable(false);
+        makeEditable(false);
         customPanel.add(xLabel, null);
         customPanel.add(xText, null);
         customPanel.add(yLabel, null);
@@ -194,21 +235,21 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
 
     private boolean validateSettings() {
         if (sqcifButton.isSelected()) {
-            dimension = SQCIF_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.SQCIF.getDimension();
         } else if (qcifButton.isSelected()) {
-            dimension = QCIF_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.QCIF.getDimension();
         } else if (sifButton.isSelected()) {
-            dimension = SIF_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.SIF.getDimension();
         } else if (cifButton.isSelected()) {
-            dimension = CIF_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.CIF.getDimension();
         } else if (cif4Button.isSelected()) {
-            dimension = CIF4_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.CIF4.getDimension();
         } else if (tvButton.isSelected()) {
-            dimension = TV_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.TV.getDimension();
         } else if (hd1Button.isSelected()) {
-            dimension = HD1_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.HD1.getDimension();
         } else if (hd2Button.isSelected()) {
-            dimension = HD2_DIMENSION;
+            dimension = YUVDeclaration.YUVNames.HD2.getDimension();
         } else if (customButton.isSelected()) {
             int xSize = xText.getValue();
             int ySize = yText.getValue();
@@ -223,9 +264,9 @@ public class SettingsDialog extends JDialog implements ActionListener, YUVDeclar
         }
         // set color space
         if (yuvButton.isSelected()) {
-            colorspace = ccYUV;
+            colorspace = YUVDeclaration.CC_YUV;
         } else if (yOnlyButton.isSelected()) {
-            colorspace = ccY;
+            colorspace = YUVDeclaration.CC_Y;
         }
         return true;
     }
